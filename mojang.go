@@ -10,10 +10,11 @@ import (
 )
 
 type MojangAccount struct {
-	Id string `json:"id"`
+	Id   string `json:"id"`
+	Name string `json:"name"`
 }
 
-func GetUserIdMojang(username string) string {
+func GetUserMojang(username string) MojangAccount {
 	var account MojangAccount
 	resp, err := http.Get(fmt.Sprintf("https://api.mojang.com/users/profiles/minecraft/%s", username))
 	if err != nil {
@@ -29,6 +30,6 @@ func GetUserIdMojang(username string) string {
 	if err != nil {
 		log.Fatal(resp)
 	}
-	log.Debugf("Mojang ID: %s", account.Id)
-	return account.Id
+	log.Debugf("Mojang account: %v", account)
+	return account
 }
