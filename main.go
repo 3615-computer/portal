@@ -88,7 +88,7 @@ func main() {
 	})
 
 	app.Get("/mojang", func(ctx *fiber.Ctx) error {
-		ctx.Render("./public/mojang.html", fiber.Map{}, "layouts/main")
+		ctx.Render("mojang", fiber.Map{}, "layouts/main")
 		return nil
 	})
 
@@ -128,7 +128,7 @@ func main() {
 			panic(err)
 		}
 
-		ctx.Render("./public/check.html", fiber.Map{
+		ctx.Render("check", fiber.Map{
 			"MojangId":         mojangAccount.Id,
 			"MojangUsername":   mojangAccount.Name,
 			"MastodonId":       mastodonAccount.UserID,
@@ -161,7 +161,7 @@ func main() {
 
 	app.Get("/", func(ctx *fiber.Ctx) error {
 		ctx.Render("index", fiber.Map{
-			"auth_url": "/auth/mastodon",
+			"auth_url": "http://127.0.0.1:3000/auth/mastodon/",
 		}, "layouts/main")
 		return nil
 	})
