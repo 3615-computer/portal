@@ -7,6 +7,7 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/mastodon"
 	gf "github.com/shareed2k/goth_fiber"
@@ -27,6 +28,8 @@ func main() {
 
 	app := fiber.New()
 
+	store := session.New()
+
 	goth.UseProviders(
 		mastodon.NewCustomisedURL(
 			os.Getenv(OAUTH2_CLIENT_ID),
@@ -43,6 +46,17 @@ func main() {
 			return err
 		}
 		ctx.JSON(user)
+		log.Debugf("Mastodon ID: %s", user.UserID)
+
+		// Store UserID in a session
+		sess, err := store.Get(ctx)
+		if err != nil {
+			panic(err)
+		}
+		sess.Set("mastodon_user_id", user.UserID)
+		sess.Save()
+
+		ctx.Redirect("/mojang")
 
 		return nil
 	})
@@ -68,7 +82,32 @@ func main() {
 	})
 
 	app.Post("/mojang", func(ctx *fiber.Ctx) error {
-		ctx.JSON(GetUserIdMojang(ctx.FormValue("mojang_username")))
+		mojangUserId := GetUserIdMojang(ctx.FormValue("mojang_username"))
+		ctx.JSON(mojangUserId)
+		// Store MojangID in a session
+		sess, err := store.Get(ctx)
+		if err != nil {
+			panic(err)
+		}
+		sess.Set("mojang_user_id", mojangUserId)
+		sess.Save()
+
+		ctx.Redirect("/check")
+
+		return nil
+	})
+
+	app.Get("/check", func(ctx *fiber.Ctx) error {
+		// Store MojangID in a session
+		sess, err := store.Get(ctx)
+		if err != nil {
+			panic(err)
+		}
+
+		ctx.JSON(map[string]string{
+			"mojang_id":   fmt.Sprint(sess.Get("mojang_user_id")),
+			"mastodon_id": fmt.Sprint(sess.Get("mastodon_user_id")),
+		})
 		return nil
 	})
 
