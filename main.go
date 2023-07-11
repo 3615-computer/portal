@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
@@ -41,19 +42,23 @@ func main() {
 	)
 
 	app.Get("/auth/:provider/callback", func(ctx *fiber.Ctx) error {
-		user, err := gf.CompleteUserAuth(ctx, gf.CompleteUserAuthOptions{ShouldLogout: false})
+		mastodon, err := gf.CompleteUserAuth(ctx, gf.CompleteUserAuthOptions{ShouldLogout: false})
 		if err != nil {
 			return err
 		}
-		ctx.JSON(user)
-		log.Debugf("Mastodon ID: %s", user.UserID)
+		ctx.JSON(mastodon)
+		log.Debugf("Mastodon account: %v", mastodon)
 
-		// Store UserID in a session
+		// Store User in a session
 		sess, err := store.Get(ctx)
 		if err != nil {
 			panic(err)
 		}
-		sess.Set("mastodon_user_id", user.UserID)
+		mastodonJson, err := json.Marshal(mastodon)
+		if err != nil {
+			panic(err)
+		}
+		sess.Set("mastodon", string(mastodonJson))
 		sess.Save()
 
 		ctx.Redirect("/mojang")
@@ -82,14 +87,18 @@ func main() {
 	})
 
 	app.Post("/mojang", func(ctx *fiber.Ctx) error {
-		mojangUserId := GetUserIdMojang(ctx.FormValue("mojang_username"))
-		ctx.JSON(mojangUserId)
-		// Store MojangID in a session
+		mojang := GetUserMojang(ctx.FormValue("mojang_username"))
+		ctx.JSON(mojang)
+		// Store Mojang in a session
 		sess, err := store.Get(ctx)
 		if err != nil {
 			panic(err)
 		}
-		sess.Set("mojang_user_id", mojangUserId)
+		mojangJson, err := json.Marshal(mojang)
+		if err != nil {
+			panic(err)
+		}
+		sess.Set("mojang", string(mojangJson))
 		sess.Save()
 
 		ctx.Redirect("/check")
@@ -98,15 +107,24 @@ func main() {
 	})
 
 	app.Get("/check", func(ctx *fiber.Ctx) error {
-		// Store MojangID in a session
 		sess, err := store.Get(ctx)
 		if err != nil {
 			panic(err)
 		}
+		var mojangAccount MojangAccount
+		var mastodonAccount goth.User
+		err = json.Unmarshal([]byte(fmt.Sprint(sess.Get("mojang"))), &mojangAccount)
+		if err != nil {
+			panic(err)
+		}
+		err = json.Unmarshal([]byte(fmt.Sprint(sess.Get("mastodon"))), &mastodonAccount)
+		if err != nil {
+			panic(err)
+		}
 
-		ctx.JSON(map[string]string{
-			"mojang_id":   fmt.Sprint(sess.Get("mojang_user_id")),
-			"mastodon_id": fmt.Sprint(sess.Get("mastodon_user_id")),
+		ctx.JSON(map[string]interface{}{
+			"mojang":   mojangAccount,
+			"mastodon": mastodonAccount,
 		})
 		return nil
 	})
