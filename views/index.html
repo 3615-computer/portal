@@ -1,6 +1,18 @@
-<h1>Enter your information:</h1>
+<main>
+    <h1>
+        Welcome to <span class="text-gradient">3615.computer</span>
+    </h1>
+    <p class="instructions">
+        To get started, click on <span class="text-gradient" >"Sign-in with Mastodon"</span>
+        <ul role="list" class="link-card-grid">
+            <li class="link-card">
+                <a href={{ .auth_url }}>
+                    <h2> Sign-in with Mastodon <span>&rarr;</span></h2>
+                    <p>Your 3615.computer account will be used to login.</p>
+                </a>
+            </li>
+        </ul>
+    </p>
+</main>
 
-<form action="/mojang" method="post">
-    mojangUsername: <input type="text" name="mojang_username"><br>
-    <input type="submit" value="Submit">
-</form>
+
