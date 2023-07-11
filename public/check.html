@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Mastodon Mojang Exaroton</title>
+</head>
+<body>
+<h1>Check your information:</h1>
+
+<form action="/add" method="post">
+    <h2>Mojang</h2>
+    <li>
+        <ul>{{.MojangId}}</ul>
+        <ul>{{.MojangUsername}}</ul>
+    </li>
+    <h2>Mastodon</h2>
+    <li>
+        <ul>{{.MastodonId}}</ul>
+        <ul>{{.MastodonUsername}}</ul>
+    </li>
+    <input type="submit" value="OK">
+</form>
+</body>

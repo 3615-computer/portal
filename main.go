@@ -19,6 +19,8 @@ const (
 	OAUTH2_CLIENT_SECRET = "OAUTH2_CLIENT_SECRET"
 	OAUTH2_REDIRECT_URL  = "OAUTH2_REDIRECT_URL"
 	MASTODON_DOMAIN      = "MASTODON_DOMAIN"
+	EXAROTON_API_KEY     = "EXAROTON_API_KEY"
+	EXAROTON_SERVERS_ID  = "EXAROTON_SERVERS_ID"
 
 	OAUTH2_REDIRECT_URL_DEFAULT = "urn:ietf:wg:oauth:2.0:oob"
 )
@@ -122,10 +124,34 @@ func main() {
 			panic(err)
 		}
 
-		ctx.JSON(map[string]interface{}{
-			"mojang":   mojangAccount,
-			"mastodon": mastodonAccount,
+		ctx.Render("./public/check.html", fiber.Map{
+			"MojangId":         mojangAccount.Id,
+			"MojangUsername":   mojangAccount.Name,
+			"MastodonId":       mastodonAccount.UserID,
+			"MastodonUsername": mastodonAccount.NickName,
 		})
+
+		return nil
+	})
+
+	app.Post("/add", func(ctx *fiber.Ctx) error {
+		sess, err := store.Get(ctx)
+		if err != nil {
+			panic(err)
+		}
+		var mojangAccount MojangAccount
+		var mastodonAccount goth.User
+		err = json.Unmarshal([]byte(fmt.Sprint(sess.Get("mojang"))), &mojangAccount)
+		if err != nil {
+			panic(err)
+		}
+		err = json.Unmarshal([]byte(fmt.Sprint(sess.Get("mastodon"))), &mastodonAccount)
+		if err != nil {
+			panic(err)
+		}
+
+		exarotonAllowUser(mojangAccount.Name)
+
 		return nil
 	})
 
