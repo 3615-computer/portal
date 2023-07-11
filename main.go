@@ -62,6 +62,16 @@ func main() {
 		return nil
 	})
 
+	app.Get("/mojang", func(ctx *fiber.Ctx) error {
+		ctx.Render("./public/index.html", fiber.Map{})
+		return nil
+	})
+
+	app.Post("/mojang", func(ctx *fiber.Ctx) error {
+		ctx.JSON(GetUserIdMojang(ctx.FormValue("mojang_username")))
+		return nil
+	})
+
 	app.Get("/", func(ctx *fiber.Ctx) error {
 		ctx.Format("<p><a href='/auth/mastodon'>mastodon</a></p>")
 		return nil
