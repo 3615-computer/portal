@@ -152,27 +152,56 @@ func main() {
 		mastodonAccount := getUserMastodonFromSession(store, ctx)
 		mojangAccount := getUserMojangFromSession(store, ctx)
 
+		// Get Mojang Name using Mastodon ID
+		previousMojangName, err := storage.Get(fmt.Sprintf("minecraft-%s", mastodonAccount.UserID))
+		if err != nil {
+			panic(err)
+		}
+
 		ctx.Render("check", fiber.Map{
-			"MojangId":         mojangAccount.Id,
-			"MojangUsername":   mojangAccount.Name,
-			"MastodonId":       mastodonAccount.UserID,
-			"MastodonUsername": mastodonAccount.NickName,
+			"PreviousMojangName": string(previousMojangName),
+			"MojangId":           mojangAccount.Id,
+			"MojangUsername":     mojangAccount.Name,
+			"MastodonId":         mastodonAccount.UserID,
+			"MastodonUsername":   mastodonAccount.NickName,
 		}, "layouts/main")
 
 		return nil
 	})
 
 	app.Post("/add", func(ctx *fiber.Ctx) error {
-		err := exarotonAllowUser(getUserMojangFromSession(store, ctx).Name)
+		mastodonAccount := getUserMastodonFromSession(store, ctx)
+		mojangAccount := getUserMojangFromSession(store, ctx)
+
+		// Get from the DB the Mojang username using Mastodon account ID
+		previousMojangName, err := storage.Get(fmt.Sprintf("minecraft-%s", mastodonAccount.UserID))
+		if err != nil {
+			panic(err)
+		}
+
+		// Remove the previously used username
+		if previousMojangName != nil {
+			err = exarotonRemoveUser(string(previousMojangName))
+			if err != nil {
+				panic(err)
+			}
+		}
+
+		// Add the user to our Exaroton servers allowlists
+		err = exarotonAllowUser(mojangAccount.Name)
 		if err != nil {
 			ctx.Render("exaroton/add", fiber.Map{"err": err}, "layouts/main")
 		}
-		params := fiber.Map{"accountName": getUserMojangFromSession(store, ctx).Name}
+
+		// Associate Mastodon ID with Mojang Username
+		log.Debug("saving username to DB:", fmt.Sprintf("minecraft-%s", mastodonAccount.UserID, mojangAccount.Name))
+		storage.Set(fmt.Sprintf("minecraft-%s", mastodonAccount.UserID), []byte(mojangAccount.Name), 0)
+		params := fiber.Map{"accountName": mojangAccount.Name}
 		ctx.Render("exaroton/add", params, "layouts/main")
 		return nil
 	})
 
-	if err := app.Listen("localhost:3000"); err != nil {
+	if err := app.Listen("0.0.0.0:3000"); err != nil {
 		log.Fatal(err)
 	}
 }
