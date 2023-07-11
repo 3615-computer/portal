@@ -1,18 +1,20 @@
 <main>
 
-    <h1>Check your information:</h1>
+    <h2 class="text-4xl font-bold mb-8">Check your information</h2>
 
-    <div class="flex flex-row">
-        <div class="basis-1/2">
-            <h2>Mojang</h2>
-            <ul class="list-disc">
+    <div class="flex flex-row mb-8">
+        <div class="basis-full">
+            <h3 class="text-3xl font-semibold">Mojang</h3>
+            <ul class="list-none">
                 <li>{{.MojangId}}</li>
                 <li>{{.MojangUsername}}</li>
             </ul>
         </div>
-        <div class="basis-1/2">
-            <h2>Mastodon</h2>
-            <ul class="list-disc">
+    </div>
+    <div class="flex flex-row">
+        <div class="basis-full">
+            <h3 class="text-3xl font-semibold">Mastodon</h3>
+            <ul class="list-none">
                 <li>{{.MastodonId}}</li>
                 <li>{{.MastodonUsername}}</li>
             </ul>
@@ -20,6 +22,6 @@
     </div>
 
     <form action="/add" method="post">
-        <input type="submit" value="OK" class="rounded-none">
+        <button type="submit" class="py-2 px-3 bg-indigo-500 text-white text-sm font-semibold rounded-md shadow focus:outline-none"> Submit</button>
     </form>
 </main>

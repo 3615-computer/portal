@@ -1,15 +1,15 @@
 <main>
     <div class="grid grid-rows-2 grid-flow-col gap-2">
-    {{if .IsSignedIn }}
+    {{if not .IsSignedIn }}
         <div>
             <p class="instructions">
-                <span class="text-gradient" ><a href={{ .ExarotonAddUrl }}>Add yourself and your friends</a></span> to our Minecraft Servers allowlist.
+                To get started, <span class="text-gradient" ><a href={{ .AuthUrl }}>sign-in with Mastodon.</a></span>
             </p>
         </div>
     {{else}}
         <div>
             <p class="instructions">
-                To get started, click on <span class="text-gradient" ><a href={{ .AuthUrl }}>Sign-in with Mastodon</a></span>
+                <span class="text-gradient" ><a href={{ .ExarotonAddUrl }}>Add yourself and your friends</a></span> to our Minecraft Servers allowlist.
             </p>
         </div>
         {{end}}
