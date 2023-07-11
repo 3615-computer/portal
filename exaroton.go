@@ -48,7 +48,7 @@ func exarotonRequestV1(verb string, path string, bodyReq io.Reader) error {
 	return err
 }
 
-func exarotonAllowUser(playerName string) error {
+func exarotonManagePlayersList(verb string, playerName string) error {
 	serversId := strings.Split(os.Getenv(EXAROTON_SERVERS_ID), ",")
 
 	body := map[string]interface{}{
@@ -67,11 +67,19 @@ func exarotonAllowUser(playerName string) error {
 	}
 
 	for _, serverId := range serversId {
-		err := exarotonRequestV1("PUT", fmt.Sprintf("/servers/%s/playerlists/%s/", serverId, "whitelist"), bytes.NewBuffer(out))
+		err := exarotonRequestV1(verb, fmt.Sprintf("/servers/%s/playerlists/%s/", serverId, "whitelist"), bytes.NewBuffer(out))
 		if err != nil {
 			log.Debug(out)
 			return err
 		}
 	}
 	return nil
+}
+
+func exarotonAllowUser(playerName string) error {
+	return exarotonManagePlayersList("PUT", playerName)
+}
+
+func exarotonRemoveUser(playerName string) error {
+	return exarotonManagePlayersList("DELETE", playerName)
 }
