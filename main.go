@@ -9,6 +9,7 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/session"
+	"github.com/gofiber/template/html/v2"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/mastodon"
 	gf "github.com/shareed2k/goth_fiber"
@@ -29,8 +30,11 @@ func main() {
 	flag.Parse()
 	log.SetLevel(log.DebugLevel)
 
-	app := fiber.New()
-
+	engine := html.New("./views", ".html")
+	app := fiber.New(fiber.Config{
+		Views: engine,
+	})
+	app.Static("/", "./public")
 	store := session.New()
 
 	goth.UseProviders(
@@ -84,7 +88,7 @@ func main() {
 	})
 
 	app.Get("/mojang", func(ctx *fiber.Ctx) error {
-		ctx.Render("./public/index.html", fiber.Map{})
+		ctx.Render("./public/mojang.html", fiber.Map{}, "layouts/main")
 		return nil
 	})
 
@@ -129,7 +133,7 @@ func main() {
 			"MojangUsername":   mojangAccount.Name,
 			"MastodonId":       mastodonAccount.UserID,
 			"MastodonUsername": mastodonAccount.NickName,
-		})
+		}, "layouts/main")
 
 		return nil
 	})
@@ -156,7 +160,9 @@ func main() {
 	})
 
 	app.Get("/", func(ctx *fiber.Ctx) error {
-		ctx.Format("<p><a href='/auth/mastodon'>mastodon</a></p>")
+		ctx.Render("index", fiber.Map{
+			"auth_url": "/auth/mastodon",
+		}, "layouts/main")
 		return nil
 	})
 
