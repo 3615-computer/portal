@@ -9,6 +9,7 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/session"
+	"github.com/gofiber/storage/sqlite3"
 	"github.com/gofiber/template/html/v2"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/mastodon"
@@ -30,12 +31,17 @@ func main() {
 	flag.Parse()
 	log.SetLevel(log.DebugLevel)
 
+	storage := sqlite3.New() // From github.com/gofiber/storage/sqlite3
 	engine := html.New("./views", ".html")
 	app := fiber.New(fiber.Config{
 		Views: engine,
 	})
 	app.Static("/", "./public")
-	store := session.New()
+	store := session.New(
+		session.Config{
+			Storage: storage,
+		},
+	)
 
 	goth.UseProviders(
 		mastodon.NewCustomisedURL(
@@ -157,7 +163,12 @@ func main() {
 	})
 
 	app.Post("/add", func(ctx *fiber.Ctx) error {
-		exarotonAllowUser(getUserMojangFromSession(store, ctx).Name)
+		err := exarotonAllowUser(getUserMojangFromSession(store, ctx).Name)
+		if err != nil {
+			ctx.Render("exaroton/add", fiber.Map{"err": err}, "layouts/main")
+		}
+		params := fiber.Map{"accountName": getUserMojangFromSession(store, ctx).Name}
+		ctx.Render("exaroton/add", params, "layouts/main")
 		return nil
 	})
 
