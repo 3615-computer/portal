@@ -8,3 +8,19 @@
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<title>{{.Title}}</title>
 	</head>
+	<header class="items-center">
+		<div class="flex flex-row">
+			<div class="basis-2/3">
+				<h1 class="text-left">
+					Welcome to <span class="text-gradient">3615.computer</span>{{if .IsSignedIn }}, {{ .Name }}{{end}}
+				</h1>
+			</div>
+			<div class="basis-1/3">
+				<h1 class="text-right">
+					{{if .IsSignedIn }}
+					<span class="text-gradient" ><a href={{.LogoutUrl}}>Logout</a></span>
+					{{end}}
+				</h1>
+			</div>
+		</div>
+	</header>

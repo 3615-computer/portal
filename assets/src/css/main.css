@@ -16,6 +16,11 @@ code {
     font-family: Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
 }
 
+header {
+    margin: auto;
+    max-width: 120ch;
+}
+
 main {
     margin: auto;
     padding: 1.5rem;

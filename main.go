@@ -41,11 +41,26 @@ func main() {
 		mastodon.NewCustomisedURL(
 			os.Getenv(OAUTH2_CLIENT_ID),
 			os.Getenv(OAUTH2_CLIENT_SECRET),
-			"http://127.0.0.1:3000/auth/mastodon/callback",
+			"http://localhost:3000/auth/mastodon/callback",
 			fmt.Sprintf("https://%s/", os.Getenv(MASTODON_DOMAIN)),
 			"read:accounts",
 		),
 	)
+
+	app.Get("/", func(ctx *fiber.Ctx) error {
+		mastodonAccount := getUserMastodonFromSession(store, ctx)
+
+		params := fiber.Map{"AuthUrl": "http://localhost:3000/auth/mastodon/"}
+
+		if mastodonAccount.AccessToken != "" {
+			params["IsSignedIn"] = true
+			params["Name"] = mastodonAccount.Name
+			params["ExarotonAddUrl"] = "http://localhost:3000/mojang/"
+			params["LogoutUrl"] = "http://localhost:3000/logout/mastodon/"
+		}
+		ctx.Render("index", params, "layouts/main")
+		return nil
+	})
 
 	app.Get("/auth/:provider/callback", func(ctx *fiber.Ctx) error {
 		mastodon, err := gf.CompleteUserAuth(ctx, gf.CompleteUserAuthOptions{ShouldLogout: false})
@@ -67,13 +82,18 @@ func main() {
 		sess.Set("mastodon", string(mastodonJson))
 		sess.Save()
 
-		ctx.Redirect("/mojang")
+		ctx.Redirect("/")
 
 		return nil
 	})
 
 	app.Get("/logout/:provider", func(ctx *fiber.Ctx) error {
 		gf.Logout(ctx)
+		sess, err := store.Get(ctx)
+		if err != nil {
+			panic(err)
+		}
+		sess.Destroy()
 		ctx.Redirect("/")
 		return nil
 	})
@@ -88,7 +108,17 @@ func main() {
 	})
 
 	app.Get("/mojang", func(ctx *fiber.Ctx) error {
-		ctx.Render("mojang", fiber.Map{}, "layouts/main")
+		mastodonAccount := getUserMastodonFromSession(store, ctx)
+
+		params := fiber.Map{"AuthUrl": "http://localhost:3000/auth/mastodon/"}
+		if mastodonAccount.AccessToken != "" {
+			params["IsSignedIn"] = true
+			params["Name"] = mastodonAccount.Name
+			params["LogoutUrl"] = "http://localhost:3000/logout/mastodon/"
+		} else {
+			ctx.Redirect("/")
+		}
+		ctx.Render("mojang", params, "layouts/main")
 		return nil
 	})
 
@@ -113,20 +143,8 @@ func main() {
 	})
 
 	app.Get("/check", func(ctx *fiber.Ctx) error {
-		sess, err := store.Get(ctx)
-		if err != nil {
-			panic(err)
-		}
-		var mojangAccount MojangAccount
-		var mastodonAccount goth.User
-		err = json.Unmarshal([]byte(fmt.Sprint(sess.Get("mojang"))), &mojangAccount)
-		if err != nil {
-			panic(err)
-		}
-		err = json.Unmarshal([]byte(fmt.Sprint(sess.Get("mastodon"))), &mastodonAccount)
-		if err != nil {
-			panic(err)
-		}
+		mastodonAccount := getUserMastodonFromSession(store, ctx)
+		mojangAccount := getUserMojangFromSession(store, ctx)
 
 		ctx.Render("check", fiber.Map{
 			"MojangId":         mojangAccount.Id,
@@ -139,34 +157,37 @@ func main() {
 	})
 
 	app.Post("/add", func(ctx *fiber.Ctx) error {
-		sess, err := store.Get(ctx)
-		if err != nil {
-			panic(err)
-		}
-		var mojangAccount MojangAccount
-		var mastodonAccount goth.User
-		err = json.Unmarshal([]byte(fmt.Sprint(sess.Get("mojang"))), &mojangAccount)
-		if err != nil {
-			panic(err)
-		}
-		err = json.Unmarshal([]byte(fmt.Sprint(sess.Get("mastodon"))), &mastodonAccount)
-		if err != nil {
-			panic(err)
-		}
-
-		exarotonAllowUser(mojangAccount.Name)
-
+		exarotonAllowUser(getUserMojangFromSession(store, ctx).Name)
 		return nil
 	})
 
-	app.Get("/", func(ctx *fiber.Ctx) error {
-		ctx.Render("index", fiber.Map{
-			"auth_url": "http://127.0.0.1:3000/auth/mastodon/",
-		}, "layouts/main")
-		return nil
-	})
-
-	if err := app.Listen("127.0.0.1:3000"); err != nil {
+	if err := app.Listen("localhost:3000"); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func getUserMastodonFromSession(store *session.Store, ctx *fiber.Ctx) goth.User {
+	sess, err := store.Get(ctx)
+	if err != nil {
+		panic(err)
+	}
+	var mastodonAccount goth.User
+	err = json.Unmarshal([]byte(fmt.Sprint(sess.Get("mastodon"))), &mastodonAccount)
+	if err != nil {
+		return goth.User{}
+	}
+	return mastodonAccount
+}
+
+func getUserMojangFromSession(store *session.Store, ctx *fiber.Ctx) MojangAccount {
+	sess, err := store.Get(ctx)
+	if err != nil {
+		panic(err)
+	}
+	var mojangAccount MojangAccount
+	err = json.Unmarshal([]byte(fmt.Sprint(sess.Get("mojang"))), &mojangAccount)
+	if err != nil {
+		panic(err)
+	}
+	return mojangAccount
 }

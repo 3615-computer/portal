@@ -1,15 +1,25 @@
-<h1>Check your information:</h1>
+<main>
 
-<form action="/add" method="post">
-    <h2>Mojang</h2>
-    <li>
-        <ul>{{.MojangId}}</ul>
-        <ul>{{.MojangUsername}}</ul>
-    </li>
-    <h2>Mastodon</h2>
-    <li>
-        <ul>{{.MastodonId}}</ul>
-        <ul>{{.MastodonUsername}}</ul>
-    </li>
-    <input type="submit" value="OK">
-</form>
+    <h1>Check your information:</h1>
+
+    <div class="flex flex-row">
+        <div class="basis-1/2">
+            <h2>Mojang</h2>
+            <ul class="list-disc">
+                <li>{{.MojangId}}</li>
+                <li>{{.MojangUsername}}</li>
+            </ul>
+        </div>
+        <div class="basis-1/2">
+            <h2>Mastodon</h2>
+            <ul class="list-disc">
+                <li>{{.MastodonId}}</li>
+                <li>{{.MastodonUsername}}</li>
+            </ul>
+        </div>
+    </div>
+
+    <form action="/add" method="post">
+        <input type="submit" value="OK" class="rounded-none">
+    </form>
+</main>
