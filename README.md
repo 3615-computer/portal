@@ -1,4 +1,8 @@
-# Mastodon to Exaroton Oauth2
+# Mastodon applications portal
+
+Services supported:
+- [Mastodon](https://joinmastodon.org/) (for signing in with OAuth2)
+- [Exaroton](https://exaroton.com/)
 
 # Config
 
