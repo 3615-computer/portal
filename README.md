@@ -13,3 +13,10 @@
 |`OAUTH2_CLIENT_SECRET`|`XXX`|create your application: `mastodon.example.com/settings/applications`)|
 |`EXAROTON_SERVERS_ID`|`XXX` or `XXX,YYY`|Split IDs with a comma, without the `#`|
 |`EXAROTON_API_KEY`|`XXX`|Get it on https://exaroton.com/account/|
+
+# How to run locally?
+
+- Application: `air`
+- Tailwind:
+    - First time: `npm ci`
+    - Watching changes: `npm run build:css`
