@@ -2,3 +2,4 @@
 /tmp/
 node_modules
 fiber.sqlite3
+/public/css/*.css
