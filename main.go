@@ -11,18 +11,21 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/gofiber/storage/sqlite3"
 	"github.com/gofiber/template/html/v2"
+	_ "github.com/joho/godotenv/autoload"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/mastodon"
 	gf "github.com/shareed2k/goth_fiber"
 )
 
 const (
+	APP_BASE_URL         = "APP_BASE_URL"
+	EXAROTON_API_KEY     = "EXAROTON_API_KEY"
+	EXAROTON_SERVERS_ID  = "EXAROTON_SERVERS_ID"
+	MASTODON_DOMAIN      = "MASTODON_DOMAIN"
 	OAUTH2_CLIENT_ID     = "OAUTH2_CLIENT_ID"
 	OAUTH2_CLIENT_SECRET = "OAUTH2_CLIENT_SECRET"
 	OAUTH2_REDIRECT_URL  = "OAUTH2_REDIRECT_URL"
-	MASTODON_DOMAIN      = "MASTODON_DOMAIN"
-	EXAROTON_API_KEY     = "EXAROTON_API_KEY"
-	EXAROTON_SERVERS_ID  = "EXAROTON_SERVERS_ID"
+	ORG_NAME             = "ORG_NAME"
 
 	OAUTH2_REDIRECT_URL_DEFAULT = "urn:ietf:wg:oauth:2.0:oob"
 )
@@ -34,7 +37,8 @@ func main() {
 	storage := sqlite3.New() // From github.com/gofiber/storage/sqlite3
 	engine := html.New("./views", ".html")
 	app := fiber.New(fiber.Config{
-		Views: engine,
+		Views:             engine,
+		PassLocalsToViews: true,
 	})
 	app.Static("/", "./public")
 	store := session.New(
@@ -42,12 +46,16 @@ func main() {
 			Storage: storage,
 		},
 	)
+	app.Use(func(c *fiber.Ctx) error {
+		c.Locals("ORG_NAME", os.Getenv(ORG_NAME))
+		return c.Next()
+	})
 
 	goth.UseProviders(
 		mastodon.NewCustomisedURL(
 			os.Getenv(OAUTH2_CLIENT_ID),
 			os.Getenv(OAUTH2_CLIENT_SECRET),
-			"http://localhost:3000/auth/mastodon/callback",
+			fmt.Sprintf("%s/auth/mastodon/callback", os.Getenv(APP_BASE_URL)),
 			fmt.Sprintf("https://%s/", os.Getenv(MASTODON_DOMAIN)),
 			"read:accounts",
 		),
@@ -56,13 +64,13 @@ func main() {
 	app.Get("/", func(ctx *fiber.Ctx) error {
 		mastodonAccount := getUserMastodonFromSession(store, ctx)
 
-		params := fiber.Map{"AuthUrl": "http://localhost:3000/auth/mastodon/"}
+		params := fiber.Map{"AuthUrl": fmt.Sprintf("%s/auth/mastodon", os.Getenv(APP_BASE_URL))}
 
 		if mastodonAccount.AccessToken != "" {
 			params["IsSignedIn"] = true
 			params["Name"] = mastodonAccount.Name
-			params["ExarotonAddUrl"] = "http://localhost:3000/mojang/"
-			params["LogoutUrl"] = "http://localhost:3000/logout/mastodon/"
+			params["ExarotonAddUrl"] = fmt.Sprintf("%s/mojang/", os.Getenv(APP_BASE_URL))
+			params["LogoutUrl"] = fmt.Sprintf("%s/logout/mastodon/", os.Getenv(APP_BASE_URL))
 		}
 		ctx.Render("index", params, "layouts/main")
 		return nil
@@ -116,11 +124,11 @@ func main() {
 	app.Get("/mojang", func(ctx *fiber.Ctx) error {
 		mastodonAccount := getUserMastodonFromSession(store, ctx)
 
-		params := fiber.Map{"AuthUrl": "http://localhost:3000/auth/mastodon/"}
+		params := fiber.Map{"AuthUrl": fmt.Sprintf("%s/auth/mastodon/", os.Getenv(APP_BASE_URL))}
 		if mastodonAccount.AccessToken != "" {
 			params["IsSignedIn"] = true
 			params["Name"] = mastodonAccount.Name
-			params["LogoutUrl"] = "http://localhost:3000/logout/mastodon/"
+			params["LogoutUrl"] = fmt.Sprintf("%s/logout/mastodon/", os.Getenv(APP_BASE_URL))
 		} else {
 			ctx.Redirect("/")
 		}
@@ -194,14 +202,14 @@ func main() {
 		}
 
 		// Associate Mastodon ID with Mojang Username
-		log.Debug("saving username to DB:", fmt.Sprintf("minecraft-%s", mastodonAccount.UserID, mojangAccount.Name))
+		log.Debug("saving username to DB:", "minecraft-%s", mastodonAccount.UserID, mojangAccount.Name)
 		storage.Set(fmt.Sprintf("minecraft-%s", mastodonAccount.UserID), []byte(mojangAccount.Name), 0)
 		params := fiber.Map{"accountName": mojangAccount.Name}
 		ctx.Render("exaroton/add", params, "layouts/main")
 		return nil
 	})
 
-	if err := app.Listen("0.0.0.0:3000"); err != nil {
+	if err := app.Listen("127.0.0.1:3000"); err != nil {
 		log.Fatal(err)
 	}
 }
