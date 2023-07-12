@@ -19,6 +19,8 @@ import (
 
 const (
 	APP_BASE_URL         = "APP_BASE_URL"
+	BIND_ADDRESS         = "BIND_ADDRESS"
+	DATABASE_PATH        = "DATABASE_PATH"
 	EXAROTON_API_KEY     = "EXAROTON_API_KEY"
 	EXAROTON_SERVERS_ID  = "EXAROTON_SERVERS_ID"
 	MASTODON_URL         = "MASTODON_URL"
@@ -31,7 +33,7 @@ func main() {
 	flag.Parse()
 	log.SetLevel(log.DebugLevel)
 
-	storage := sqlite3.New() // From github.com/gofiber/storage/sqlite3
+	storage := sqlite3.New(sqlite3.Config{Database: os.Getenv(DATABASE_PATH)}) // From github.com/gofiber/storage/sqlite3
 	engine := html.New("./views", ".html")
 	app := fiber.New(fiber.Config{
 		Views:             engine,
@@ -210,7 +212,7 @@ func main() {
 		return nil
 	})
 
-	if err := app.Listen("127.0.0.1:3000"); err != nil {
+	if err := app.Listen(os.Getenv(BIND_ADDRESS)); err != nil {
 		log.Fatal(err)
 	}
 }
