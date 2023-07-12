@@ -56,7 +56,7 @@ COPY ./assets/ ./assets/
 COPY ./views/ ./views/
 COPY ["./package.json", "./package-lock.json", "tailwind.config.js", "./"]
 
-RUN npx tailwindcss -i ./assets/src/css/main.css -o ./public/css/main.css
+RUN npm run build:css:prod
 
 ################################################################################
 # Create a new stage for running the application that contains the minimal
