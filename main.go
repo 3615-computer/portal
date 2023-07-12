@@ -58,6 +58,10 @@ func main() {
 		),
 	)
 
+	app.Get("/health", func(ctx *fiber.Ctx) error {
+		return ctx.SendStatus(fiber.StatusOK)
+	})
+
 	app.Get("/", func(ctx *fiber.Ctx) error {
 		mastodonAccount := getUserMastodonFromSession(store, ctx)
 
