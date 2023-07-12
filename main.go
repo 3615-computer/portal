@@ -21,13 +21,10 @@ const (
 	APP_BASE_URL         = "APP_BASE_URL"
 	EXAROTON_API_KEY     = "EXAROTON_API_KEY"
 	EXAROTON_SERVERS_ID  = "EXAROTON_SERVERS_ID"
-	MASTODON_DOMAIN      = "MASTODON_DOMAIN"
+	MASTODON_URL         = "MASTODON_URL"
 	OAUTH2_CLIENT_ID     = "OAUTH2_CLIENT_ID"
 	OAUTH2_CLIENT_SECRET = "OAUTH2_CLIENT_SECRET"
-	OAUTH2_REDIRECT_URL  = "OAUTH2_REDIRECT_URL"
 	ORG_NAME             = "ORG_NAME"
-
-	OAUTH2_REDIRECT_URL_DEFAULT = "urn:ietf:wg:oauth:2.0:oob"
 )
 
 func main() {
@@ -56,7 +53,7 @@ func main() {
 			os.Getenv(OAUTH2_CLIENT_ID),
 			os.Getenv(OAUTH2_CLIENT_SECRET),
 			fmt.Sprintf("%s/auth/mastodon/callback", os.Getenv(APP_BASE_URL)),
-			fmt.Sprintf("https://%s/", os.Getenv(MASTODON_DOMAIN)),
+			fmt.Sprintf("%s", os.Getenv(MASTODON_URL)),
 			"read:accounts",
 		),
 	)
