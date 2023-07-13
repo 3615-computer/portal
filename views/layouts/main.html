@@ -8,23 +8,73 @@
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <title>{{.Title}}</title>
     </head>
-    <header class="py-8 items-center">
-        <div class="flex flex-row">
-            <div class="basis-2/3 text-left">
-                <h1 class="text-5xl font-extrabold">
-                    Welcome to
-                    <span class="text-gradient"> <a href="/">{{ .ORG_NAME }}</a></span
-                    >{{if .IsSignedIn }}, {{ .Name }}{{end}}
-                </h1>
-            </div>
-            <div class="text-right basis-1/3">
-                {{if .IsSignedIn }}
-                <a href="{{.LogoutUrl}}" class="text-3xl font-bold outline outline-offset-8 outline-pink-500 rounded-md">Logout</a>
-                {{end}}
-            </div>
-        </div>
-    </header>
     <body class="h-full">
-        <main>{{embed}}</main>
+        <div class="min-h-full">
+            <nav class="bg-gray-800">
+                <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div class="flex lg:h-16 items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="hidden md:block">
+                                <div class="flex items-baseline space-x-4">
+                                    <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
+                                    <a href="/" class="bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium" aria-current="page">Home</a>
+                                    <a href="#" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Minecraft</a>
+                                </div>
+                            </div>
+                        </div>
+                        <h1 class="text-white grow md:text-2xl text-2xl text-center font-extrabold">
+                            Welcome to
+                            <span class="text-gradient"> <a href="/">{{ .ORG_NAME }}</a></span>
+                        </h1>
+                        <div class="sm:hidden md:block">
+                            <div class="ml-4 flex space-x-4 items-center md:ml-6">
+                                {{if .IsSignedIn }}
+                                <a href="/" class="text-white px-3 py-2 text-sm font-medium" aria-current="page">{{ .Name }}</a>
+                                <a href="/logout/mastodon">
+                                    <button
+                                        type="button"
+                                        class="rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+                                        <span class="sr-only">Logout</span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+                                        </svg>
+                                    </button>
+                                </a>
+                                {{else}}
+                                <a href="/auth/mastodon" class="text-white px-3 py-2 text-sm font-medium" aria-current="page">Sign-in</a>
+                                {{end}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile menu, show/hide based on menu state. -->
+                <div class="md:hidden" id="mobile-menu">
+                    <div class="space-y-1 px-2 pb-3 pt-2 sm:px-3">
+                        <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
+                        <a href="/" class="bg-gray-900 text-white block rounded-md px-3 py-2 text-base font-medium" aria-current="page">Home</a>
+                        <a href="#" class="text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium">Minecraft</a>
+                    </div>
+                </div>
+            </nav>
+            <header class="bg-white shadow">
+                <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+                    <h1 class="text-3xl font-bold tracking-tight text-gray-900">Home</h1>
+                </div>
+            </header>
+
+            <main>
+                {{if .IsSignedIn }}
+                <div class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
+                    <div class="px-4 p-6 sm:px-0">
+                        <div class="p-8 bg-white drop-shadow relative rounded-xl"> {{ embed }} </div>
+                    </div>
+                </div>
+                {{ end }}
+            </main>
+        </div>
     </body>
 </html>
