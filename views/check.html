@@ -9,11 +9,7 @@
             <li>Your account username: {{.MojangUsername}}</li>
             {{ if .PreviousMojangName }}
             <h4 class="text-2xl font-semibold">Previous account notice</h4>
-            <p>
-                "{{ .PreviousMojangName }}" was previously used. This username
-                will get removed from our allowlists and your new one "{{
-                .MojangUsername }}" will replace it.
-            </p>
+            <p>"{{ .PreviousMojangName }}" was previously used. This username will get removed from our allowlists and your new one "{{ .MojangUsername }}" will replace it.</p>
             {{ end }}
         </ul>
     </div>
@@ -29,22 +25,12 @@
 </div>
 
 <form action="/add" method="post">
-    <button
-        type="submit"
-        class="py-2 px-3 bg-indigo-500 text-white text-sm font-semibold rounded-md shadow focus:outline-none"
-    >
-        Submit
-    </button>
+    <button type="submit" class="py-2 px-3 bg-indigo-500 text-white text-sm font-semibold rounded-md shadow focus:outline-none">Submit</button>
 </form>
 {{ else }}
 <h2 class="text-4xl font-bold mb-8">Check your information</h2>
 <p>"{{ .MojangUsername }}" is already registered.</p>
 <form action="/add" method="post">
-    <button
-        type="submit"
-        class="py-2 px-3 bg-indigo-500 text-white text-sm font-semibold rounded-md shadow focus:outline-none"
-    >
-        Submit again
-    </button>
+    <button type="submit" class="py-2 px-3 bg-indigo-500 text-white text-sm font-semibold rounded-md shadow focus:outline-none">Submit again</button>
 </form>
 {{ end }}
