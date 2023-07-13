@@ -4,6 +4,7 @@ services:
   app:
     tty: true
     build:
+      context: .
       target: build
     ports:
       - "3000:3000"
@@ -23,6 +24,7 @@ services:
   assets:
     tty: true
     build:
+      context: .
       target: build-assets
     volumes:
       - ./:/usr/src/app:cached
