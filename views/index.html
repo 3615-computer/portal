@@ -1,19 +1,23 @@
-<main>
-    <div class="grid grid-rows-2 grid-flow-col gap-2">
+<div class="grid grid-rows-2 grid-flow-col gap-2">
     {{if not .IsSignedIn }}
-        <div>
-            <p class="instructions">
-                To get started, <span class="text-gradient" ><a href={{ .AuthUrl }}>sign-in with Mastodon.</a></span>
-            </p>
-        </div>
-    {{else}}
-        <div>
-            <p class="instructions">
-                <span class="text-gradient" ><a href={{ .ExarotonAddUrl }}>Add your Minecraft username</a></span> to our Minecraft Servers allowlist.
-            </p>
-        </div>
-        {{end}}
+    <div>
+        <p class="instructions">
+            To get started,
+            <span class="text-gradient"
+                ><a href="{{" .AuthUrl }}>sign-in with Mastodon.</a></span
+            >
+        </p>
     </div>
-</main>
-
-
+    {{else}}
+    <div>
+        <p class="instructions">
+            <span class="text-gradient"
+                ><a href="{{" .ExarotonAddUrl }}
+                    >Add your Minecraft username</a
+                ></span
+            >
+            to our Minecraft Servers allowlist.
+        </p>
+    </div>
+    {{end}}
+</div>
