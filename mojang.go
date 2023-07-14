@@ -17,6 +17,7 @@ type MojangAccount struct {
 func GetUserMojang(username string) MojangAccount {
 	var account MojangAccount
 	resp, err := http.Get(fmt.Sprintf("https://api.mojang.com/users/profiles/minecraft/%s", username))
+	log.Debug("Mojang API resp: %v", resp)
 	if err != nil {
 		log.Fatal(resp)
 	}

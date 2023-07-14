@@ -1,6 +1,16 @@
-<h2 class="text-4xl font-bold">Enter your information:</h2>
-<form action="/mojang" method="post">
-    <label>Mojang Username:</label>
-    <input type="text" name="mojang_username" /><br />
-    <button type="submit" class="py-2 px-3 bg-indigo-500 text-white text-sm font-semibold rounded-md shadow focus:outline-none">Submit</button>
-</form>
+<div class="w-full max-w-xs">
+    <form class="px-8 pt-6 pb-8 mb-4" action="/mojang" method="post">
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="username">Mojang Username </label>
+            <input
+                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                id="username"
+                name="username"
+                type="text"
+                placeholder="Username" />
+        </div>
+        <div class="flex items-center justify-between">
+            <button class="py-2 px-3 bg-indigo-500 text-white text-sm font-semibold rounded-md shadow focus:outline-none" type="submit">Submit</button>
+        </div>
+    </form>
+</div>
