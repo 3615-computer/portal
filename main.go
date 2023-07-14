@@ -73,6 +73,7 @@ func main() {
 			// Required for logged in pages
 			params["IsSignedIn"] = true
 			params["Name"] = mastodonAccount.Name
+			params["Avatar"] = mastodonAccount.AvatarURL
 			params["ExarotonAddUrl"] = fmt.Sprintf("%s/mojang/", ctx.BaseURL())
 			params["LogoutUrl"] = fmt.Sprintf("%s/logout/mastodon/", ctx.BaseURL())
 		}
@@ -133,6 +134,7 @@ func main() {
 		if mastodonAccount.AccessToken != "" {
 			params["IsSignedIn"] = true
 			params["Name"] = mastodonAccount.Name
+			params["Avatar"] = mastodonAccount.AvatarURL
 			params["LogoutUrl"] = fmt.Sprintf("%s/logout/mastodon/", ctx.BaseURL())
 		} else {
 			ctx.Redirect("/")
@@ -177,6 +179,7 @@ func main() {
 			// Required for logged in pages
 			params["IsSignedIn"] = true
 			params["Name"] = mastodonAccount.Name
+			params["Avatar"] = mastodonAccount.AvatarURL
 			params["LogoutUrl"] = fmt.Sprintf("%s/logout/mastodon/", ctx.BaseURL())
 			// Specific
 			params["PreviousMojangName"] = string(previousMojangName)
@@ -226,6 +229,7 @@ func main() {
 			// Required for logged in pages
 			params["IsSignedIn"] = true
 			params["Name"] = mastodonAccount.Name
+			params["Avatar"] = mastodonAccount.AvatarURL
 			params["LogoutUrl"] = fmt.Sprintf("%s/logout/mastodon/", ctx.BaseURL())
 			// Specific
 			params["accountName"] = mojangAccount.Name
