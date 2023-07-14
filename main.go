@@ -67,14 +67,14 @@ func main() {
 	app.Get("/", func(ctx *fiber.Ctx) error {
 		mastodonAccount := getUserMastodonFromSession(store, ctx)
 
-		params := fiber.Map{"AuthUrl": fmt.Sprintf("%s/auth/mastodon", os.Getenv(APP_BASE_URL))}
-
+		params := fiber.Map{}
+		params["AuthUrl"] = fmt.Sprintf("%s/auth/mastodon", ctx.BaseURL())
 		if mastodonAccount.AccessToken != "" {
 			// Required for logged in pages
 			params["IsSignedIn"] = true
 			params["Name"] = mastodonAccount.Name
-			params["ExarotonAddUrl"] = fmt.Sprintf("%s/mojang/", os.Getenv(APP_BASE_URL))
-			params["LogoutUrl"] = fmt.Sprintf("%s/logout/mastodon/", os.Getenv(APP_BASE_URL))
+			params["ExarotonAddUrl"] = fmt.Sprintf("%s/mojang/", ctx.BaseURL())
+			params["LogoutUrl"] = fmt.Sprintf("%s/logout/mastodon/", ctx.BaseURL())
 		}
 		ctx.Render("index", params, "layouts/main")
 		return nil
@@ -128,11 +128,12 @@ func main() {
 	app.Get("/mojang", func(ctx *fiber.Ctx) error {
 		mastodonAccount := getUserMastodonFromSession(store, ctx)
 
-		params := fiber.Map{"AuthUrl": fmt.Sprintf("%s/auth/mastodon/", os.Getenv(APP_BASE_URL))}
+		params := fiber.Map{}
+		params["AuthUrl"] = fmt.Sprintf("%s/auth/mastodon/", ctx.BaseURL())
 		if mastodonAccount.AccessToken != "" {
 			params["IsSignedIn"] = true
 			params["Name"] = mastodonAccount.Name
-			params["LogoutUrl"] = fmt.Sprintf("%s/logout/mastodon/", os.Getenv(APP_BASE_URL))
+			params["LogoutUrl"] = fmt.Sprintf("%s/logout/mastodon/", ctx.BaseURL())
 		} else {
 			ctx.Redirect("/")
 		}
@@ -176,7 +177,7 @@ func main() {
 			// Required for logged in pages
 			params["IsSignedIn"] = true
 			params["Name"] = mastodonAccount.Name
-			params["LogoutUrl"] = fmt.Sprintf("%s/logout/mastodon/", os.Getenv(APP_BASE_URL))
+			params["LogoutUrl"] = fmt.Sprintf("%s/logout/mastodon/", ctx.BaseURL())
 			// Specific
 			params["PreviousMojangName"] = string(previousMojangName)
 			params["MojangId"] = mojangAccount.Id
@@ -213,7 +214,7 @@ func main() {
 		// Add the user to our Exaroton servers allowlists
 		err = exarotonAllowUser(mojangAccount.Name)
 		if err != nil {
-			ctx.Render("exaroton/add", fiber.Map{"err": err}, "layouts/main")
+			ctx.Render("exaroton/add", fiber.Map{"err": err, "currentPath": ctx.Path()}, "layouts/main")
 		}
 
 		// Associate Mastodon ID with Mojang Username
@@ -225,7 +226,7 @@ func main() {
 			// Required for logged in pages
 			params["IsSignedIn"] = true
 			params["Name"] = mastodonAccount.Name
-			params["LogoutUrl"] = fmt.Sprintf("%s/logout/mastodon/", os.Getenv(APP_BASE_URL))
+			params["LogoutUrl"] = fmt.Sprintf("%s/logout/mastodon/", ctx.BaseURL())
 			// Specific
 			params["accountName"] = mojangAccount.Name
 		} else {
