@@ -140,7 +140,7 @@ func main() {
 	})
 
 	app.Post("/mojang", func(ctx *fiber.Ctx) error {
-		mojang := GetUserMojang(ctx.FormValue("mojang_username"))
+		mojang := GetUserMojang(ctx.FormValue("username"))
 		ctx.JSON(mojang)
 		// Store Mojang in a session
 		sess, err := store.Get(ctx)
