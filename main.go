@@ -70,6 +70,7 @@ func main() {
 		params := fiber.Map{"AuthUrl": fmt.Sprintf("%s/auth/mastodon", os.Getenv(APP_BASE_URL))}
 
 		if mastodonAccount.AccessToken != "" {
+			// Required for logged in pages
 			params["IsSignedIn"] = true
 			params["Name"] = mastodonAccount.Name
 			params["ExarotonAddUrl"] = fmt.Sprintf("%s/mojang/", os.Getenv(APP_BASE_URL))
@@ -169,13 +170,24 @@ func main() {
 			panic(err)
 		}
 
-		ctx.Render("check", fiber.Map{
-			"PreviousMojangName": string(previousMojangName),
-			"MojangId":           mojangAccount.Id,
-			"MojangUsername":     mojangAccount.Name,
-			"MastodonId":         mastodonAccount.UserID,
-			"MastodonUsername":   mastodonAccount.NickName,
-		}, "layouts/main")
+		params := fiber.Map{}
+
+		if mastodonAccount.AccessToken != "" {
+			// Required for logged in pages
+			params["IsSignedIn"] = true
+			params["Name"] = mastodonAccount.Name
+			params["LogoutUrl"] = fmt.Sprintf("%s/logout/mastodon/", os.Getenv(APP_BASE_URL))
+			// Specific
+			params["PreviousMojangName"] = string(previousMojangName)
+			params["MojangId"] = mojangAccount.Id
+			params["MojangUsername"] = mojangAccount.Name
+			params["MastodonId"] = mastodonAccount.UserID
+			params["MastodonUsername"] = mastodonAccount.NickName
+		} else {
+			ctx.Redirect("/")
+		}
+
+		ctx.Render("check", params, "layouts/main")
 
 		return nil
 	})
@@ -207,7 +219,18 @@ func main() {
 		// Associate Mastodon ID with Mojang Username
 		log.Debug("saving username to DB:", "minecraft-%s", mastodonAccount.UserID, mojangAccount.Name)
 		storage.Set(fmt.Sprintf("minecraft-%s", mastodonAccount.UserID), []byte(mojangAccount.Name), 0)
-		params := fiber.Map{"accountName": mojangAccount.Name}
+		params := fiber.Map{}
+
+		if mastodonAccount.AccessToken != "" {
+			// Required for logged in pages
+			params["IsSignedIn"] = true
+			params["Name"] = mastodonAccount.Name
+			params["LogoutUrl"] = fmt.Sprintf("%s/logout/mastodon/", os.Getenv(APP_BASE_URL))
+			// Specific
+			params["accountName"] = mojangAccount.Name
+		} else {
+			ctx.Redirect("/")
+		}
 		ctx.Render("exaroton/add", params, "layouts/main")
 		return nil
 	})
