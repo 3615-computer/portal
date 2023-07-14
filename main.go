@@ -72,6 +72,7 @@ func main() {
 		if mastodonAccount.AccessToken != "" {
 			// Required for logged in pages
 			params["IsSignedIn"] = true
+			params["Title"] = "Home"
 			params["Name"] = mastodonAccount.Name
 			params["Avatar"] = mastodonAccount.AvatarURL
 			params["ExarotonAddUrl"] = fmt.Sprintf("%s/mojang/", ctx.BaseURL())
@@ -133,6 +134,7 @@ func main() {
 		params["AuthUrl"] = fmt.Sprintf("%s/auth/mastodon/", ctx.BaseURL())
 		if mastodonAccount.AccessToken != "" {
 			params["IsSignedIn"] = true
+			params["Title"] = "Minecraft"
 			params["Name"] = mastodonAccount.Name
 			params["Avatar"] = mastodonAccount.AvatarURL
 			params["LogoutUrl"] = fmt.Sprintf("%s/logout/mastodon/", ctx.BaseURL())
@@ -178,6 +180,7 @@ func main() {
 		if mastodonAccount.AccessToken != "" {
 			// Required for logged in pages
 			params["IsSignedIn"] = true
+			params["Title"] = "Minecraft"
 			params["Name"] = mastodonAccount.Name
 			params["Avatar"] = mastodonAccount.AvatarURL
 			params["LogoutUrl"] = fmt.Sprintf("%s/logout/mastodon/", ctx.BaseURL())
