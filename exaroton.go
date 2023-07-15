@@ -13,7 +13,30 @@ import (
 	"github.com/charmbracelet/log"
 )
 
-func exarotonRequestV1(verb string, path string, bodyReq io.Reader) error {
+type ExarotonBody struct {
+	Success bool            `json:"success"`
+	Error   string          `json:"error"`
+	Data    json.RawMessage `json:"data"`
+}
+
+type ExarotonServer struct {
+	Id       string                 `json:"id"`
+	Name     string                 `json:"name"`
+	Address  string                 `json:"address"`
+	Motd     string                 `json:"motd"`
+	Status   int                    `json:"status"`
+	Host     string                 `json:"host"`
+	Port     string                 `json:"port"`
+	Software ExarotonServerSoftware `json:"software"`
+}
+
+type ExarotonServerSoftware struct {
+	Id      string `json:"id"`
+	Name    string `json:"name"`
+	Version string `json:"version"`
+}
+
+func exarotonRequestV1(verb string, path string, bodyReq io.Reader) (response []byte, err error) {
 	flag.Parse()
 	log.SetLevel(log.DebugLevel)
 
@@ -45,10 +68,10 @@ func exarotonRequestV1(verb string, path string, bodyReq io.Reader) error {
 		log.Fatalf("Error while reading the response bytes: %s", err)
 	}
 	log.Debug(string([]byte(bodyResp)))
-	return err
+	return bodyResp, err
 }
 
-func exarotonManagePlayersList(verb string, playerName string) error {
+func exarotonManagePlayersList(verb string, playerName string) (response []byte, err error) {
 	serversId := strings.Split(os.Getenv(EXAROTON_SERVERS_ID), ",")
 
 	body := map[string]interface{}{
@@ -67,19 +90,51 @@ func exarotonManagePlayersList(verb string, playerName string) error {
 	}
 
 	for _, serverId := range serversId {
-		err := exarotonRequestV1(verb, fmt.Sprintf("/servers/%s/playerlists/%s/", serverId, "whitelist"), bytes.NewBuffer(out))
+		resp, err := exarotonRequestV1(verb, fmt.Sprintf("/servers/%s/playerlists/%s/", serverId, "whitelist"), bytes.NewBuffer(out))
 		if err != nil {
 			log.Debug(out)
-			return err
+			return resp, err
 		}
 	}
-	return nil
+	return nil, nil
 }
 
-func exarotonAllowUser(playerName string) error {
+func exarotonGetServersList() (response []ExarotonServer, err error) {
+	respJson, err := exarotonRequestV1("GET", fmt.Sprintf("/servers/"), &bytes.Buffer{})
+	if err != nil {
+		return nil, err
+	}
+	var resp ExarotonBody
+	err = json.Unmarshal(respJson, &resp)
+	if err != nil {
+		log.Debug(err)
+		return nil, err
+	}
+
+	var servers []ExarotonServer
+	err = json.Unmarshal(resp.Data, &servers)
+	if err != nil {
+		log.Debug(err)
+		return nil, err
+	}
+	// Extract only IDs we want
+	serverIDs := strings.Split(os.Getenv(EXAROTON_SERVERS_ID), ",")
+	filteredServers := make([]ExarotonServer, 0)
+	for _, server := range servers {
+		for _, targetID := range serverIDs {
+			if server.Id == targetID {
+				filteredServers = append(filteredServers, server)
+				break // Skip further checks for this server
+			}
+		}
+	}
+	return filteredServers, nil
+}
+
+func exarotonAllowUser(playerName string) (response []byte, err error) {
 	return exarotonManagePlayersList("PUT", playerName)
 }
 
-func exarotonRemoveUser(playerName string) error {
+func exarotonRemoveUser(playerName string) (response []byte, err error) {
 	return exarotonManagePlayersList("DELETE", playerName)
 }

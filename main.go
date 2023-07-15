@@ -70,9 +70,12 @@ func main() {
 		params := fiber.Map{}
 		params["AuthUrl"] = fmt.Sprintf("%s/auth/mastodon", ctx.BaseURL())
 		if mastodonAccount.AccessToken != "" {
+
+			servers, _ := exarotonGetServersList()
 			// Required for logged in pages
 			params["IsSignedIn"] = true
 			params["Title"] = "Home"
+			params["MinecraftServers"] = servers
 			params["Name"] = mastodonAccount.Name
 			params["Avatar"] = mastodonAccount.AvatarURL
 			params["ExarotonAddUrl"] = fmt.Sprintf("%s/mojang/", ctx.BaseURL())
@@ -211,14 +214,14 @@ func main() {
 
 		// Remove the previously used username
 		if previousMojangName != nil {
-			err = exarotonRemoveUser(string(previousMojangName))
+			_, err = exarotonRemoveUser(string(previousMojangName))
 			if err != nil {
 				panic(err)
 			}
 		}
 
 		// Add the user to our Exaroton servers allowlists
-		err = exarotonAllowUser(mojangAccount.Name)
+		_, err = exarotonAllowUser(mojangAccount.Name)
 		if err != nil {
 			ctx.Render("exaroton/add", fiber.Map{"err": err, "currentPath": ctx.Path()}, "layouts/main")
 		}
