@@ -253,6 +253,7 @@ func main() {
 		if mastodonAccount.AccessToken != "" {
 			// Required for logged in pages
 			params["IsSignedIn"] = true
+			params["Title"] = "Minecraft"
 			params["Name"] = mastodonAccount.Name
 			params["Avatar"] = mastodonAccount.AvatarURL
 			params["LogoutUrl"] = fmt.Sprintf("%s/logout/mastodon/", ctx.BaseURL())
