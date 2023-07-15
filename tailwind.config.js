@@ -2,8 +2,7 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./views/layouts/*.html",
-    "./views/partials/*.html",
+    "./views/**/*.html",
     "./views/*.html",
     "./assets/src/css/**.css",
   ],
