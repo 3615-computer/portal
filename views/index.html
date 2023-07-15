@@ -5,4 +5,30 @@
         to our Minecraft Servers allowlist.
     </p>
 </div>
+
+<div class="flex flex-wrap">
+    {{ range .MinecraftServers }}
+    <div class="sm:basis-full md:basis-1/2 xl:basis-1/3">
+        <div class="px-6 py-4">
+            <div class="font-bold text-2xl mb-2 text-center">{{ .Name }}</div>
+            <div class="font-bold text-l mb-2 text-center"><span>{{ .Software.Name }} @ {{ .Software.Version }}</span></div>
+            <div class="my-6 py-4 ring-4 ring-indigo-500 rounded text-white bg-slate-800 text-center">
+                <code>{{ .Address }}</code>
+            </div>
+            <p class="text-gray-700 text-base">Experience a captivating fusion of Minecraft and RPG elements on our server. </p>
+            <br />
+            <p class="text-gray-700 text-base">Choose your class, embark on quests, defeat bosses, and interact with a dynamic world. Engage in PvP battles, trade, and build alliances.</p>
+            <br />
+            <p class="text-gray-700 text-base">Join us for an immersive adventure like no other.</p>
+        </div>
+        <!--
+        <div class="px-6 pt-4 pb-2">
+            <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">#minecraft</span>
+            <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">#rpg</span>
+        </div>
+    -->
+    </div>
+    {{ end }}
+</div>
+
 {{end}}
