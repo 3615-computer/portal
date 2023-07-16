@@ -28,8 +28,8 @@ kill_timeout = 5
   min_machines_running = 0
 
   [[services.ports]]
-    handlers = ["http"]
-    port = 80
+    handlers = ["tls", "http"]
+    port = "443"
 
   [[services.http_checks]]
     path = "/health"
