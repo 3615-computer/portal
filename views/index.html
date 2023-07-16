@@ -1,5 +1,16 @@
-{{if .IsSignedIn }}
+{{if ne .mastodonAccount.UserID "" }}
 <div class="p-8 bg-white drop-shadow relative rounded-xl">
-    <p class="instructions"> Browse the menu to see what you can do with our services. </p>
+    <p class="instructions">Welcome {{ .mastodonAccount.Name}}</p>
 </div>
-{{end}}
+{{ end }}
+<div class="flex flex-wrap -mx-4 mt-8">
+    <div class="w-full md:w-1/2 lg:w-1/3 px-4">
+        <div class="bg-white drop-shadow rounded-lg p-4 mb-4">
+            <div class="font-bold text-2xl mb-2 text-center">
+                <a href="/minecraft">Minecraft</a>
+            </div>
+            <p class="text-gray-700 text-base">Explore our Minecraft servers and add yourself to the allowlist!</p>
+            <br />
+        </div>
+    </div>
+</div>
