@@ -28,12 +28,12 @@
                         </h1>
                         <div class="sm:hidden md:block">
                             <div class="ml-4 flex space-x-4 items-center md:ml-6">
-                                {{if .IsSignedIn }}
+                                {{if ne .mastodonAccount.UserID "" }}
 
                                 <div class="flex flex-row">
                                     <a href="/" class="flex items-center text-white px-3 py-2 text-sm font-medium" aria-current="page">
-                                        <img class="block h-8 w-8 rounded-full" src="{{ .Avatar }}" alt="" />
-                                        <span class="px-2 basis-auto">{{ .Name }}</span>
+                                        <img class="block h-8 w-8 rounded-full" src="{{ .mastodonAccount.AvatarURL }}" alt="" />
+                                        <span class="px-2 basis-auto">{{ .mastodonAccount.Name }}</span>
                                     </a>
                                 </div>
 
@@ -76,11 +76,9 @@
             </header>
 
             <main>
-                {{if .IsSignedIn }}
                 <div class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
                     <div class="px-4 p-6 sm:px-0"> {{ embed }} </div>
                 </div>
-                {{ end }}
             </main>
         </div>
     </body>

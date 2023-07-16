@@ -1,8 +1,8 @@
-{{if .IsSignedIn }}
+{{if ne .mastodonAccount.UserID "" }}
 <div class="p-8 bg-white drop-shadow relative rounded-xl">
     <div>
         <p class="instructions">
-            <span class="text-gradient"><a href="{{ .ExarotonAddUrl }}">Add your Minecraft username</a></span>
+            <span class="text-gradient"><a href="/minecraft/new">Add your Minecraft username</a></span>
             to our servers allowlist.
         </p>
     </div>

@@ -38,6 +38,7 @@ func main() {
 	app := fiber.New(fiber.Config{
 		Views:             engine,
 		PassLocalsToViews: true,
+		ViewsLayout:       "layouts/main",
 	})
 	app.Static("/", "./public")
 	store := session.New(
@@ -45,9 +46,11 @@ func main() {
 			Storage: storage,
 		},
 	)
-	app.Use(func(c *fiber.Ctx) error {
-		c.Locals("ORG_NAME", os.Getenv(ORG_NAME))
-		return c.Next()
+	app.Use(func(ctx *fiber.Ctx) error {
+		ctx.Locals(
+			"ORG_NAME", os.Getenv(ORG_NAME),
+		)
+		return ctx.Next()
 	})
 
 	goth.UseProviders(
@@ -68,17 +71,9 @@ func main() {
 		mastodonAccount := getUserMastodonFromSession(store, ctx)
 
 		params := fiber.Map{}
-		params["AuthUrl"] = fmt.Sprintf("%s/auth/mastodon", ctx.BaseURL())
-		if mastodonAccount.AccessToken != "" {
-			// Required for logged in pages
-			params["IsSignedIn"] = true
-			params["Title"] = "Home"
-			params["Name"] = mastodonAccount.Name
-			params["Avatar"] = mastodonAccount.AvatarURL
-			params["ExarotonAddUrl"] = fmt.Sprintf("%s/minecraft/new", ctx.BaseURL())
-			params["LogoutUrl"] = fmt.Sprintf("%s/logout/mastodon/", ctx.BaseURL())
-		}
-		ctx.Render("index", params, "layouts/main")
+		params["Title"] = "Home"
+		params["mastodonAccount"] = mastodonAccount
+		ctx.Render("index", params)
 		return nil
 	})
 
@@ -130,20 +125,15 @@ func main() {
 	app.Get("/minecraft", func(ctx *fiber.Ctx) error {
 		mastodonAccount := getUserMastodonFromSession(store, ctx)
 		params := fiber.Map{}
-		params["AuthUrl"] = fmt.Sprintf("%s/auth/mastodon", ctx.BaseURL())
 		servers, _ := exarotonGetServersList()
-		if mastodonAccount.AccessToken != "" {
-			params["IsSignedIn"] = true
+		if mastodonAccount.UserID != "" {
+			params["mastodonAccount"] = mastodonAccount
 			params["Title"] = "Minecraft"
-			params["Name"] = mastodonAccount.Name
 			params["MinecraftServers"] = servers
-			params["Avatar"] = mastodonAccount.AvatarURL
-			params["ExarotonAddUrl"] = fmt.Sprintf("%s/minecraft/new", ctx.BaseURL())
-			params["LogoutUrl"] = fmt.Sprintf("%s/logout/mastodon/", ctx.BaseURL())
 		} else {
 			ctx.Redirect("/")
 		}
-		ctx.Render("minecraft/index", params, "layouts/main")
+		ctx.Render("minecraft/index", params)
 		return nil
 	})
 
@@ -151,19 +141,13 @@ func main() {
 		mastodonAccount := getUserMastodonFromSession(store, ctx)
 
 		params := fiber.Map{}
-		params["AuthUrl"] = fmt.Sprintf("%s/auth/mastodon/", ctx.BaseURL())
 		servers, _ := exarotonGetServersList()
-		if mastodonAccount.AccessToken != "" {
-			params["IsSignedIn"] = true
+		if mastodonAccount.UserID != "" {
+			params["mastodonAccount"] = mastodonAccount
 			params["Title"] = "Minecraft"
-			params["Name"] = mastodonAccount.Name
 			params["MinecraftServers"] = servers
-			params["Avatar"] = mastodonAccount.AvatarURL
-			params["LogoutUrl"] = fmt.Sprintf("%s/logout/mastodon/", ctx.BaseURL())
-		} else {
-			ctx.Redirect("/")
 		}
-		ctx.Render("minecraft/new", params, "layouts/main")
+		ctx.Render("minecraft/new", params)
 		return nil
 	})
 
@@ -199,13 +183,10 @@ func main() {
 
 		params := fiber.Map{}
 
-		if mastodonAccount.AccessToken != "" {
+		if mastodonAccount.UserID != "" {
 			// Required for logged in pages
-			params["IsSignedIn"] = true
+			params["mastodonAccount"] = mastodonAccount
 			params["Title"] = "Minecraft"
-			params["Name"] = mastodonAccount.Name
-			params["Avatar"] = mastodonAccount.AvatarURL
-			params["LogoutUrl"] = fmt.Sprintf("%s/logout/mastodon/", ctx.BaseURL())
 			// Specific
 			params["PreviousMojangName"] = string(previousMojangName)
 			params["MojangId"] = mojangAccount.Id
@@ -216,7 +197,7 @@ func main() {
 			ctx.Redirect("/")
 		}
 
-		ctx.Render("minecraft/check", params, "layouts/main")
+		ctx.Render("minecraft/check", params)
 
 		return nil
 	})
@@ -242,7 +223,7 @@ func main() {
 		// Add the user to our Exaroton servers allowlists
 		_, err = exarotonAllowUser(mojangAccount.Name)
 		if err != nil {
-			ctx.Render("minecraft/add", fiber.Map{"err": err, "currentPath": ctx.Path()}, "layouts/main")
+			ctx.Render("minecraft/add", fiber.Map{"err": err, "currentPath": ctx.Path()})
 		}
 
 		// Associate Mastodon ID with Mojang Username
@@ -250,19 +231,16 @@ func main() {
 		storage.Set(fmt.Sprintf("minecraft-%s", mastodonAccount.UserID), []byte(mojangAccount.Name), 0)
 		params := fiber.Map{}
 
-		if mastodonAccount.AccessToken != "" {
+		if mastodonAccount.UserID != "" {
 			// Required for logged in pages
-			params["IsSignedIn"] = true
 			params["Title"] = "Minecraft"
-			params["Name"] = mastodonAccount.Name
-			params["Avatar"] = mastodonAccount.AvatarURL
-			params["LogoutUrl"] = fmt.Sprintf("%s/logout/mastodon/", ctx.BaseURL())
+			params["mastodonAccount"] = mastodonAccount
 			// Specific
 			params["accountName"] = mojangAccount.Name
 		} else {
 			ctx.Redirect("/")
 		}
-		ctx.Render("minecraft/added", params, "layouts/main")
+		ctx.Render("minecraft/added", params)
 		return nil
 	})
 
