@@ -26,7 +26,7 @@ type ExarotonServer struct {
 	Motd     string                 `json:"motd"`
 	Status   int                    `json:"status"`
 	Host     string                 `json:"host"`
-	Port     string                 `json:"port"`
+	Port     int                    `json:"port"`
 	Software ExarotonServerSoftware `json:"software"`
 }
 
