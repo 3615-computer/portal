@@ -20,21 +20,19 @@ kill_timeout = 5
   source = "sqlite3_volume"
   destination = "/data"
 
-[http_service]
+[[services]]
   internal_port = 3000
-  force_https = true
+  protocol = "tcp"
   auto_stop_machines = true
   auto_start_machines = true
   min_machines_running = 0
 
-  [http_service.concurrency]
-    type = "requests"
-    soft_limit = 200
-    hard_limit = 250
+  [[services.ports]]
+    handlers = ["http"]
+    port = 80
 
   [[services.http_checks]]
     path = "/health"
     grace_period = "1s"
     interval = "15s"
-    restart_limit = 0
     timeout = "2s"
