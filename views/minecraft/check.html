@@ -1,5 +1,5 @@
 {{ if ne .MojangUsername .PreviousMojangName }}
-<div class="p-8 bg-white dark:text-amethyst-200 dark:bg-slate-900 drop-shadow relative rounded-xl">
+<div class="p-8 bg-white dark:text-white dark:bg-slate-900 drop-shadow relative rounded-xl">
     <h2 class="text-4xl dark:text-amethyst-600 font-bold mb-8">Check your information</h2>
 
     <div class="flex flex-row mb-8">
@@ -29,7 +29,7 @@
         <button type="submit" class="py-2 px-3 bg-indigo-500 dark:bg-amethyst-500 text-white text-sm font-semibold rounded-md shadow focus:outline-none">Submit</button>
     </form>
     {{ else }}
-    <div class="p-8 bg-white dark:text-amethyst-200 dark:bg-slate-900 drop-shadow relative rounded-xl">
+    <div class="p-8 bg-white dark:text-white dark:bg-slate-900 drop-shadow relative rounded-xl">
         <h2 class="text-4xl dark:text-amethyst-600 font-bold mb-8">Check your information</h2>
         <p>"{{ .MojangUsername }}" is already registered.</p>
         <form action="/minecraft/create" method="post">
