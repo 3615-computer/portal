@@ -1,8 +1,8 @@
 {{if ne .mastodonAccount.UserID "" }}
-<div class="p-8 bg-white drop-shadow relative rounded-xl">
+<div class="p-8 bg-white dark:bg-slate-900 drop-shadow relative rounded-xl">
     <div>
-        <p class="instructions">
-            <span class="text-gradient"><a href="/minecraft/new">Add your Minecraft username</a></span>
+        <p class="instructions dark:text-amethyst-200">
+            <span class="text-amethyst-600"><a href="/minecraft/new">Add your Minecraft username</a></span>
             to our servers allowlist.
         </p>
     </div>
@@ -11,10 +11,10 @@
 <div class="flex flex-wrap -mx-4 mt-8">
     {{ range .MinecraftServers }}
     <div class="w-full md:w-1/2 lg:w-1/3 px-4">
-        <div class="bg-white drop-shadow rounded-lg p-4 mb-4">
-            <div class="font-bold text-2xl mb-2 text-center">{{ .Name }}</div>
-            <div class="font-bold text-l mb-2 text-center"><span>{{ .Software.Name }} @ {{ .Software.Version }}</span></div>
-            <div class="my-6 py-4 ring-4 ring-indigo-500 rounded text-white bg-slate-800 text-center">
+        <div class="bg-white dark:bg-slate-900 drop-shadow rounded-lg p-4 mb-4">
+            <div class="dark:text-amethyst-600 font-bold text-2xl mb-2 text-center">{{ .Name }}</div>
+            <div class="dark:text-amethyst-200 font-bold text-l mb-2 text-center"><span>{{ .Software.Name }} @ {{ .Software.Version }}</span></div>
+            <div class="my-6 py-4 ring-4 ring-indigo-500 dark:ring-amethyst-600 rounded text-white bg-slate-800 dark:bg-amethyst-500 text-center">
                 <code>{{ .Address }}</code>
             </div>
             <!--
