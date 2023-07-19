@@ -24,14 +24,16 @@
                         </div>
                         <h1 class="text-white grow md:text-2xl text-2xl md:text-center font-extrabold">
                             Welcome to
-                            <span class="text-gradient"> <a href="/">{{ .ORG_NAME }}</a></span>
+                            <span class="text-transparent bg-clip-text bg-gradient-to-br from-amber-400 to-yellow-500">
+                                <a href="/">{{ .ORG_NAME }}</a>
+                            </span>
                         </h1>
                         <div class="sm:hidden md:block">
                             <div class="ml-4 flex space-x-4 items-center md:ml-6">
                                 {{if ne .mastodonAccount.UserID "" }}
 
                                 <div class="flex flex-row">
-                                    <a href="/" class="flex items-center text-white px-3 py-2 text-sm font-medium" aria-current="page">
+                                    <a href="/" class="flex items-center text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium" aria-current="page">
                                         <img class="block h-8 w-8 rounded-full" src="{{ .mastodonAccount.AvatarURL }}" alt="" />
                                         <span class="px-2 basis-auto">{{ .mastodonAccount.Name }}</span>
                                     </a>
@@ -71,7 +73,7 @@
             </nav>
             <header class="bg-white dark:bg-slate-900 shadow">
                 <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                    <h1 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-amethyst-600">{{ .Title }}</h1>
+                    <h1 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-amber-400">{{ .Title }}</h1>
                 </div>
             </header>
 
