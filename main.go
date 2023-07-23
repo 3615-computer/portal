@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"html/template"
 	"os"
 	"strings"
 	"time"
@@ -17,6 +18,11 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/mastodon"
+
+	"github.com/gomarkdown/markdown"
+	mdHtml "github.com/gomarkdown/markdown/html"
+	"github.com/gomarkdown/markdown/parser"
+	"github.com/microcosm-cc/bluemonday"
 	gf "github.com/shareed2k/goth_fiber"
 )
 
@@ -291,6 +297,7 @@ func main() {
 	})
 
 	app.Get("/miniblog/:user/posts/:post", func(ctx *fiber.Ctx) error {
+		mastodonAccount := getUserMastodonFromSession(store, ctx)
 		userId := ctx.Params("user")
 		postId := ctx.Params("post")
 
@@ -304,7 +311,8 @@ func main() {
 
 		params["Title"] = fmt.Sprintf("Post: \"%s\"", title)
 		params["PostTitle"] = string(title)
-		params["PostBody"] = string(body)
+		params["PostBody"] = template.HTML(string(mdToHTML(body)))
+		params["mastodonAccount"] = mastodonAccount
 
 		ctx.Render("miniblog/posts/show", params)
 		return nil
@@ -382,9 +390,25 @@ func saveBlogPost(storage *sqlite3.Storage, post BlogPost) error {
 	bodyKey := fmt.Sprintf("blog-%s-%s-body", post.Author.Id, post.Id)
 
 	storage.Set(titleKey, []byte(post.Title), 0)
-	log.Info("Blog post title saved", "id", post.Id, "userId", post.Author.Id, "title", post.Title)
+	log.Debug("Blog post title saved", "id", post.Id, "userId", post.Author.Id, "title", post.Title)
 	storage.Set(bodyKey, []byte(post.Body), 0)
-	log.Info("Blog post content saved", "id", post.Id, "userId", post.Author.Id, "content", post.Body)
+	log.Debug("Blog post content saved", "id", post.Id, "userId", post.Author.Id, "content", post.Body)
+
+	log.Debug("Blog post", "id", post.Id, "userId", post.Author.Id)
 
 	return nil
+}
+
+func mdToHTML(md []byte) []byte {
+	// create markdown parser with extensions
+	extensions := parser.CommonExtensions | parser.AutoHeadingIDs | parser.NoEmptyLineBeforeBlock
+	p := parser.NewWithExtensions(extensions)
+	doc := p.Parse(md)
+
+	// create HTML renderer with extensions
+	htmlFlags := mdHtml.CommonFlags | mdHtml.HrefTargetBlank
+	opts := mdHtml.RendererOptions{Flags: htmlFlags}
+	renderer := mdHtml.NewRenderer(opts)
+
+	return bluemonday.UGCPolicy().SanitizeBytes(markdown.Render(doc, renderer))
 }
