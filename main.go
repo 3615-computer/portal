@@ -5,12 +5,15 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
+	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/gofiber/storage/sqlite3"
 	"github.com/gofiber/template/html/v2"
+	"github.com/google/uuid"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/mastodon"
@@ -29,11 +32,29 @@ const (
 	ORG_NAME             = "ORG_NAME"
 )
 
+type Author struct {
+	Id   string
+	Name string
+}
+
+type BlogPost struct {
+	Id           string
+	Author       Author
+	Title        string
+	Body         string
+	CreationDate time.Time
+}
+
 func main() {
 	flag.Parse()
 	log.SetLevel(log.DebugLevel)
 
-	storage := sqlite3.New(sqlite3.Config{Database: os.Getenv(DATABASE_PATH)}) // From github.com/gofiber/storage/sqlite3
+	// From github.com/gofiber/storage/sqlite3
+	storageSessions := sqlite3.New(sqlite3.Config{Database: os.Getenv(DATABASE_PATH)})
+	storageBlog := sqlite3.New(sqlite3.Config{Database: os.Getenv(DATABASE_PATH), Table: "blog_posts"})
+
+	// TODO: create a blogpost database with real fields (not kv)
+
 	engine := html.New("./views", ".html")
 	app := fiber.New(fiber.Config{
 		Views:             engine,
@@ -43,7 +64,7 @@ func main() {
 	app.Static("/", "./public")
 	store := session.New(
 		session.Config{
-			Storage: storage,
+			Storage: storageSessions,
 		},
 	)
 	app.Use(func(ctx *fiber.Ctx) error {
@@ -176,7 +197,7 @@ func main() {
 		mojangAccount := getUserMojangFromSession(store, ctx)
 
 		// Get Mojang Name using Mastodon ID
-		previousMojangName, err := storage.Get(fmt.Sprintf("minecraft-%s", mastodonAccount.UserID))
+		previousMojangName, err := storageSessions.Get(fmt.Sprintf("minecraft-%s", mastodonAccount.UserID))
 		if err != nil {
 			panic(err)
 		}
@@ -207,7 +228,7 @@ func main() {
 		mojangAccount := getUserMojangFromSession(store, ctx)
 
 		// Get from the DB the Mojang username using Mastodon account ID
-		previousMojangName, err := storage.Get(fmt.Sprintf("minecraft-%s", mastodonAccount.UserID))
+		previousMojangName, err := storageSessions.Get(fmt.Sprintf("minecraft-%s", mastodonAccount.UserID))
 		if err != nil {
 			panic(err)
 		}
@@ -228,7 +249,7 @@ func main() {
 
 		// Associate Mastodon ID with Mojang Username
 		log.Debug("saving username to DB:", "minecraft-%s", mastodonAccount.UserID, mojangAccount.Name)
-		storage.Set(fmt.Sprintf("minecraft-%s", mastodonAccount.UserID), []byte(mojangAccount.Name), 0)
+		storageSessions.Set(fmt.Sprintf("minecraft-%s", mastodonAccount.UserID), []byte(mojangAccount.Name), 0)
 		params := fiber.Map{}
 
 		if mastodonAccount.UserID != "" {
@@ -244,12 +265,93 @@ func main() {
 		return nil
 	})
 
+	app.Get("/miniblog", func(ctx *fiber.Ctx) error {
+		mastodonAccount := getUserMastodonFromSession(store, ctx)
+		params := fiber.Map{}
+		if mastodonAccount.UserID != "" {
+			params["mastodonAccount"] = mastodonAccount
+			params["Title"] = "Miniblog"
+		} else {
+			ctx.Redirect("/")
+		}
+		ctx.Render("miniblog/index", params)
+		return nil
+	})
+
+	app.Get("/miniblog/new", func(ctx *fiber.Ctx) error {
+		mastodonAccount := getUserMastodonFromSession(store, ctx)
+
+		params := fiber.Map{}
+		if mastodonAccount.UserID != "" {
+			params["mastodonAccount"] = mastodonAccount
+			params["Title"] = "Miniblog"
+		}
+		ctx.Render("miniblog/new", params)
+		return nil
+	})
+
+	app.Get("/miniblog/:user/posts/:post", func(ctx *fiber.Ctx) error {
+		userId := ctx.Params("user")
+		postId := ctx.Params("post")
+
+		titleKey := fmt.Sprintf("blog-%s-%s-title", userId, postId)
+		bodyKey := fmt.Sprintf("blog-%s-%s-body", userId, postId)
+
+		title, _ := storageBlog.Get(titleKey)
+		body, _ := storageBlog.Get(bodyKey)
+
+		params := fiber.Map{}
+
+		params["Title"] = fmt.Sprintf("Post: \"%s\"", title)
+		params["PostTitle"] = string(title)
+		params["PostBody"] = string(body)
+
+		ctx.Render("miniblog/posts/show", params)
+		return nil
+	})
+
+	app.Post("/miniblog", func(ctx *fiber.Ctx) error {
+		mastodonAccount := getUserMastodonFromSession(store, ctx)
+
+		author := Author{
+			Id:   mastodonAccount.UserID,
+			Name: strings.ToLower(mastodonAccount.Name),
+		}
+		blogPost := BlogPost{
+			Id:           uuid.New().String(),
+			Author:       author, // Not saved
+			Title:        ctx.FormValue("title"),
+			Body:         ctx.FormValue("body"),
+			CreationDate: time.Now(), // Not saved
+		}
+
+		err := saveBlogPost(storageBlog, blogPost)
+		if err != nil {
+			panic(err)
+		}
+
+		return ctx.Redirect(fmt.Sprintf("/miniblog/%s/posts/%s", blogPost.Author.Id, blogPost.Id))
+	})
+
 	if err := app.Listen(os.Getenv(BIND_ADDRESS)); err != nil {
 		log.Fatal(err)
 	}
 }
 
 func getUserMastodonFromSession(store *session.Store, ctx *fiber.Ctx) goth.User {
+	sess, err := store.Get(ctx)
+	if err != nil {
+		panic(err)
+	}
+	var mastodonAccount goth.User
+	err = json.Unmarshal([]byte(fmt.Sprint(sess.Get("mastodon"))), &mastodonAccount)
+	if err != nil {
+		return goth.User{}
+	}
+	return mastodonAccount
+}
+
+func getUserMastodonFromSId(id string, store *session.Store, ctx *fiber.Ctx) goth.User {
 	sess, err := store.Get(ctx)
 	if err != nil {
 		panic(err)
@@ -273,4 +375,16 @@ func getUserMojangFromSession(store *session.Store, ctx *fiber.Ctx) MojangAccoun
 		panic(err)
 	}
 	return mojangAccount
+}
+
+func saveBlogPost(storage *sqlite3.Storage, post BlogPost) error {
+	titleKey := fmt.Sprintf("blog-%s-%s-title", post.Author.Id, post.Id)
+	bodyKey := fmt.Sprintf("blog-%s-%s-body", post.Author.Id, post.Id)
+
+	storage.Set(titleKey, []byte(post.Title), 0)
+	log.Info("Blog post title saved", "id", post.Id, "userId", post.Author.Id, "title", post.Title)
+	storage.Set(bodyKey, []byte(post.Body), 0)
+	log.Info("Blog post content saved", "id", post.Id, "userId", post.Author.Id, "content", post.Body)
+
+	return nil
 }
