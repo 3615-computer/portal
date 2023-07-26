@@ -1,0 +1,10 @@
+<div class="flex flex-wrap -mx-4 mt-12">
+  {{ range .Posts }}
+  <div class="w-full md:w-1/2 lg:w-1/3 px-4">
+    <div class="bg-white dark:bg-slate-900 drop-shadow rounded-lg p-4 mb-4">
+      <div class="dark:text-amber-400 font-bold text-2xl mb-2 text-center"><a href="/miniblog/{{ .Author.NameURL }}/posts/{{ .ID }}">{{ .Title }}</a></div>
+      <div class="dark:text-amber-400"><a href="/">{{ .CreatedAt }}</a></div>
+    </div>
+  </div>
+  {{ end }}
+</div>

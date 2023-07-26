@@ -308,6 +308,26 @@ func main() {
 		return nil
 	})
 
+	app.Get("/miniblog/:authorNameURL/posts/", func(ctx *fiber.Ctx) error {
+		mastodonAccount := getUserMastodonFromSession(store, ctx)
+		authorNameURL := ctx.Params("authorNameURL")
+
+		var author Author
+		var blogPosts []BlogPost
+
+		storageBlog.First(&author, Author{NameURL: authorNameURL})
+		storageBlog.Order("created_at desc").Limit(20).Preload("Author").Find(&blogPosts, BlogPost{Author: author})
+
+		params := fiber.Map{}
+
+		params["Title"] = fmt.Sprintf("%s", author.Name)
+		params["Posts"] = blogPosts
+		params["mastodonAccount"] = mastodonAccount
+
+		ctx.Render("miniblog/posts/index", params)
+		return nil
+	})
+
 	app.Get("/miniblog/:username/posts/:post", func(ctx *fiber.Ctx) error {
 		mastodonAccount := getUserMastodonFromSession(store, ctx)
 		postId := ctx.Params("post")
@@ -346,7 +366,7 @@ func main() {
 			panic(err)
 		}
 
-		return ctx.Redirect(fmt.Sprintf("/miniblog/%s/posts/%s", blogPost.Author.Name, blogPost.ID))
+		return ctx.Redirect(fmt.Sprintf("/miniblog/%s/posts/%s", blogPost.Author.NameURL, blogPost.ID))
 	})
 
 	if err := app.Listen(os.Getenv(BIND_ADDRESS)); err != nil {
