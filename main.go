@@ -19,6 +19,9 @@ import (
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/mastodon"
 
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
+
 	"github.com/gomarkdown/markdown"
 	mdHtml "github.com/gomarkdown/markdown/html"
 	"github.com/gomarkdown/markdown/parser"
@@ -39,12 +42,15 @@ const (
 )
 
 type Author struct {
+	gorm.Model
 	Id   string
 	Name string
 }
 
 type BlogPost struct {
+	gorm.Model
 	Id           string
+	AuthorID     string
 	Author       Author
 	Title        string
 	Body         string
@@ -57,9 +63,13 @@ func main() {
 
 	// From github.com/gofiber/storage/sqlite3
 	storageSessions := sqlite3.New(sqlite3.Config{Database: os.Getenv(DATABASE_PATH)})
-	storageBlog := sqlite3.New(sqlite3.Config{Database: os.Getenv(DATABASE_PATH), Table: "blog_posts"})
-
-	// TODO: create a blogpost database with real fields (not kv)
+	// Create blog DB
+	storageBlog, err := gorm.Open(sqlite.Open("blog.sqlite3"), &gorm.Config{})
+	if err != nil {
+		log.Fatal("Cannot open blog.sqlite3", "err", err)
+	}
+	// Migrate the schema
+	storageBlog.AutoMigrate(&BlogPost{})
 
 	engine := html.New("./views", ".html")
 	app := fiber.New(fiber.Config{
@@ -298,20 +308,16 @@ func main() {
 
 	app.Get("/miniblog/:user/posts/:post", func(ctx *fiber.Ctx) error {
 		mastodonAccount := getUserMastodonFromSession(store, ctx)
-		userId := ctx.Params("user")
 		postId := ctx.Params("post")
 
-		titleKey := fmt.Sprintf("blog-%s-%s-title", userId, postId)
-		bodyKey := fmt.Sprintf("blog-%s-%s-body", userId, postId)
-
-		title, _ := storageBlog.Get(titleKey)
-		body, _ := storageBlog.Get(bodyKey)
+		var blogPost BlogPost
+		storageBlog.First(&blogPost, "id = ?", postId)
 
 		params := fiber.Map{}
 
-		params["Title"] = fmt.Sprintf("Post: \"%s\"", title)
-		params["PostTitle"] = string(title)
-		params["PostBody"] = template.HTML(string(mdToHTML(body)))
+		params["Title"] = fmt.Sprintf("Post: \"%s\"", blogPost.Title)
+		params["PostTitle"] = blogPost.Title
+		params["PostBody"] = template.HTML(string(mdToHTML([]byte(blogPost.Body))))
 		params["mastodonAccount"] = mastodonAccount
 
 		ctx.Render("miniblog/posts/show", params)
@@ -385,17 +391,12 @@ func getUserMojangFromSession(store *session.Store, ctx *fiber.Ctx) MojangAccoun
 	return mojangAccount
 }
 
-func saveBlogPost(storage *sqlite3.Storage, post BlogPost) error {
-	titleKey := fmt.Sprintf("blog-%s-%s-title", post.Author.Id, post.Id)
-	bodyKey := fmt.Sprintf("blog-%s-%s-body", post.Author.Id, post.Id)
+func saveBlogPost(db *gorm.DB, post BlogPost) error {
+	if err := db.Save(&post).Error; err != nil {
+		log.Fatal("Error during blog post save", "id", post.Id, "userId", post.Author.Id)
+	}
 
-	storage.Set(titleKey, []byte(post.Title), 0)
-	log.Debug("Blog post title saved", "id", post.Id, "userId", post.Author.Id, "title", post.Title)
-	storage.Set(bodyKey, []byte(post.Body), 0)
-	log.Debug("Blog post content saved", "id", post.Id, "userId", post.Author.Id, "content", post.Body)
-
-	log.Debug("Blog post", "id", post.Id, "userId", post.Author.Id)
-
+	log.Debug("Blog post saved", "id", post.Id, "userId", post.Author.Id)
 	return nil
 }
 
