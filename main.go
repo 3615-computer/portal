@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"html/template"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -43,13 +44,14 @@ const (
 
 type Author struct {
 	gorm.Model
-	Id   string
-	Name string
+	ID      string
+	Name    string
+	NameURL string
 }
 
 type BlogPost struct {
 	gorm.Model
-	Id           string
+	ID           string
 	AuthorID     string
 	Author       Author
 	Title        string
@@ -306,16 +308,16 @@ func main() {
 		return nil
 	})
 
-	app.Get("/miniblog/:user/posts/:post", func(ctx *fiber.Ctx) error {
+	app.Get("/miniblog/:username/posts/:post", func(ctx *fiber.Ctx) error {
 		mastodonAccount := getUserMastodonFromSession(store, ctx)
 		postId := ctx.Params("post")
 
 		var blogPost BlogPost
-		storageBlog.First(&blogPost, "id = ?", postId)
+		storageBlog.Preload("Author").First(&blogPost, "id = ?", postId)
 
 		params := fiber.Map{}
 
-		params["Title"] = fmt.Sprintf("Post: \"%s\"", blogPost.Title)
+		params["Title"] = fmt.Sprintf("%s – %s", blogPost.Title, blogPost.Author.Name)
 		params["PostTitle"] = blogPost.Title
 		params["PostBody"] = template.HTML(string(mdToHTML([]byte(blogPost.Body))))
 		params["mastodonAccount"] = mastodonAccount
@@ -327,16 +329,16 @@ func main() {
 	app.Post("/miniblog", func(ctx *fiber.Ctx) error {
 		mastodonAccount := getUserMastodonFromSession(store, ctx)
 
-		author := Author{
-			Id:   mastodonAccount.UserID,
-			Name: strings.ToLower(mastodonAccount.Name),
-		}
 		blogPost := BlogPost{
-			Id:           uuid.New().String(),
-			Author:       author, // Not saved
+			ID: uuid.New().String(),
+			Author: Author{
+				ID:      mastodonAccount.UserID,
+				Name:    mastodonAccount.Name,
+				NameURL: url.QueryEscape(strings.ToLower(mastodonAccount.Name)),
+			},
 			Title:        ctx.FormValue("title"),
 			Body:         ctx.FormValue("body"),
-			CreationDate: time.Now(), // Not saved
+			CreationDate: time.Now(),
 		}
 
 		err := saveBlogPost(storageBlog, blogPost)
@@ -344,7 +346,7 @@ func main() {
 			panic(err)
 		}
 
-		return ctx.Redirect(fmt.Sprintf("/miniblog/%s/posts/%s", blogPost.Author.Id, blogPost.Id))
+		return ctx.Redirect(fmt.Sprintf("/miniblog/%s/posts/%s", blogPost.Author.Name, blogPost.ID))
 	})
 
 	if err := app.Listen(os.Getenv(BIND_ADDRESS)); err != nil {
@@ -393,10 +395,10 @@ func getUserMojangFromSession(store *session.Store, ctx *fiber.Ctx) MojangAccoun
 
 func saveBlogPost(db *gorm.DB, post BlogPost) error {
 	if err := db.Save(&post).Error; err != nil {
-		log.Fatal("Error during blog post save", "id", post.Id, "userId", post.Author.Id)
+		log.Fatal("Error during blog post save", "id", post.ID, "author", post.Author)
 	}
 
-	log.Debug("Blog post saved", "id", post.Id, "userId", post.Author.Id)
+	log.Debug("Blog post saved", "id", post.ID, "author", post.Author)
 	return nil
 }
 
