@@ -8,11 +8,15 @@ require (
 	github.com/gofiber/template/html/v2 v2.0.5
 	github.com/markbates/goth v1.77.0
 	github.com/shareed2k/goth_fiber v0.2.9
+	gorm.io/driver/sqlite v1.5.2
+	gorm.io/gorm v1.25.2-0.20230530020048-26663ab9bf55
 )
 
 require (
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
+	github.com/jinzhu/inflection v1.0.0 // indirect
+	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/mattn/go-sqlite3 v1.14.17 // indirect
 )
 
