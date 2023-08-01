@@ -8,7 +8,8 @@
           id="title"
           name="title"
           type="text"
-          placeholder="World, I have something to tell you." />
+          placeholder="World, I have something to tell you."
+          value="{{ .Post.Title }}" />
       </div>
       <div class="mb-4">
         <label class="block text-gray-700 dark:text-amber-400 text-sm font-bold mb-2" for="body">Content</label>
@@ -17,10 +18,12 @@
           rows="12"
           id="body"
           name="body"
-          placeholder="Your awesome thought..."></textarea>
+          placeholder="Your awesome thought...">
+{{ .PostBody }} </textarea
+        >
       </div>
       <div class="flex items-center justify-between">
-        <button class="py-2 px-3 bg-amber-500 hover:bg-amber-400 text-white dark:text-slate-900 text-sm font-semibold rounded-md shadow focus:outline-none" type="submit">Share</button>
+        <button class="py-2 px-3 bg-amber-500 hover:bg-amber-400 text-white dark:text-slate-900 text-sm font-semibold rounded-md shadow focus:outline-none" type="submit">Edit</button>
       </div>
     </form>
   </div>
