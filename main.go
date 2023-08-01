@@ -402,6 +402,46 @@ func main() {
 		return ctx.Redirect(fmt.Sprintf("/miniblog/%s/posts/%s", blogPost.Author.NameURL, blogPost.ID))
 	})
 
+	app.Get("/miniblog/:username/posts/:post/delete", func(ctx *fiber.Ctx) error {
+		mastodonAccount := getUserMastodonFromSession(store, ctx)
+		postId := ctx.Params("post")
+
+		var blogPost BlogPost
+		storageBlog.Preload("Author").First(&blogPost, "id = ?", postId)
+
+		if mastodonAccount.UserID != blogPost.AuthorID {
+			//TODO: handle error
+			return ctx.Redirect(fmt.Sprintf("/miniblog/%s/posts/%s", blogPost.Author.NameURL, blogPost.ID))
+		}
+
+		params := fiber.Map{}
+
+		params["Title"] = fmt.Sprintf("%s – %s", blogPost.Title, blogPost.Author.Name)
+		params["Post"] = blogPost
+
+		ctx.Render("miniblog/posts/delete", params)
+		return nil
+	})
+
+	app.Post("/miniblog/:username/posts/:post/delete", func(ctx *fiber.Ctx) error {
+		mastodonAccount := getUserMastodonFromSession(store, ctx)
+		postId := ctx.Params("post")
+
+		var blogPost BlogPost
+		storageBlog.Preload("Author").First(&blogPost, "id = ?", postId)
+
+		if mastodonAccount.UserID != blogPost.AuthorID {
+			//TODO: handle error
+			return ctx.Redirect(fmt.Sprintf("/miniblog/%s/posts/%s", blogPost.Author.NameURL, blogPost.ID))
+		}
+
+		if err := storageBlog.Delete(&blogPost).Error; err != nil {
+			log.Fatal("Error during blog post delete", "id", blogPost.ID, "author", blogPost.Author, "error", err)
+		}
+
+		return ctx.Redirect(fmt.Sprintf("/miniblog/%s/posts/", blogPost.Author.NameURL))
+	})
+
 	app.Post("/miniblog", func(ctx *fiber.Ctx) error {
 		mastodonAccount := getUserMastodonFromSession(store, ctx)
 
