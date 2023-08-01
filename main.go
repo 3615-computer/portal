@@ -439,7 +439,7 @@ func main() {
 			log.Fatal("Error during blog post delete", "id", blogPost.ID, "author", blogPost.Author, "error", err)
 		}
 
-		return ctx.Redirect(fmt.Sprintf("/miniblog/%s/posts/", blogPost.Author.NameURL))
+		return ctx.Redirect("/miniblog/")
 	})
 
 	app.Post("/miniblog", func(ctx *fiber.Ctx) error {
