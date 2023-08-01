@@ -346,12 +346,60 @@ func main() {
 		params := fiber.Map{}
 
 		params["Title"] = fmt.Sprintf("%s – %s", blogPost.Title, blogPost.Author.Name)
-		params["PostTitle"] = blogPost.Title
+		params["Author"] = blogPost.Author
+		params["Post"] = blogPost
 		params["PostBody"] = template.HTML(string(mdToHTML([]byte(blogPost.Body))))
 		params["mastodonAccount"] = mastodonAccount
 
 		ctx.Render("miniblog/posts/show", params)
 		return nil
+	})
+
+	app.Get("/miniblog/:username/posts/:post/edit", func(ctx *fiber.Ctx) error {
+		mastodonAccount := getUserMastodonFromSession(store, ctx)
+		postId := ctx.Params("post")
+
+		var blogPost BlogPost
+		storageBlog.Preload("Author").First(&blogPost, "id = ?", postId)
+
+		if mastodonAccount.UserID != blogPost.AuthorID {
+			//TODO: handle error
+			return ctx.Redirect(fmt.Sprintf("/miniblog/%s/posts/%s", blogPost.Author.NameURL, blogPost.ID))
+		}
+
+		params := fiber.Map{}
+
+		params["Title"] = fmt.Sprintf("%s – %s", blogPost.Title, blogPost.Author.Name)
+		params["Author"] = blogPost.Author
+		params["Post"] = blogPost
+		params["PostBody"] = string([]byte(blogPost.Body))
+		params["mastodonAccount"] = mastodonAccount
+
+		ctx.Render("miniblog/posts/update", params)
+		return nil
+	})
+
+	app.Post("/miniblog/:username/posts/:post/edit", func(ctx *fiber.Ctx) error {
+		mastodonAccount := getUserMastodonFromSession(store, ctx)
+		postId := ctx.Params("post")
+
+		var blogPost BlogPost
+		storageBlog.Preload("Author").First(&blogPost, "id = ?", postId)
+
+		if mastodonAccount.UserID != blogPost.AuthorID {
+			//TODO: handle error
+			return ctx.Redirect(fmt.Sprintf("/miniblog/%s/posts/%s", blogPost.Author.NameURL, blogPost.ID))
+		}
+
+		blogPost.Body = ctx.FormValue("body")
+		blogPost.Title = ctx.FormValue("title")
+
+		err := saveBlogPost(storageBlog, blogPost)
+		if err != nil {
+			panic(err)
+		}
+
+		return ctx.Redirect(fmt.Sprintf("/miniblog/%s/posts/%s", blogPost.Author.NameURL, blogPost.ID))
 	})
 
 	app.Post("/miniblog", func(ctx *fiber.Ctx) error {
