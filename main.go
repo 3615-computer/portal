@@ -285,10 +285,18 @@ func main() {
 
 	app.Get("/miniblog", func(ctx *fiber.Ctx) error {
 		mastodonAccount := getUserMastodonFromSession(store, ctx)
+
+		var author Author
+		var blogPosts []BlogPost
+
+		storageBlog.First(&author, Author{ID: mastodonAccount.UserID})
+		storageBlog.Order("created_at desc").Limit(20).Preload("Author").Find(&blogPosts, BlogPost{Author: author})
+
 		params := fiber.Map{}
 		if mastodonAccount.UserID != "" {
 			params["mastodonAccount"] = mastodonAccount
 			params["Title"] = "Miniblog"
+			params["Posts"] = blogPosts
 		} else {
 			ctx.Redirect("/")
 		}
