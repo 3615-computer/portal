@@ -35,6 +35,6 @@ README.md
 **/.env
 tmp
 **/node_modules
-**/fiber.sqlite3
+**/*.sqlite3
 public/css/*.css
 fly.toml
