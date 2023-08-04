@@ -9,8 +9,10 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/log"
+	"github.com/gofiber/storage/sqlite3"
 )
 
 type ExarotonBody struct {
@@ -99,22 +101,37 @@ func exarotonManagePlayersList(verb string, playerName string) (response []byte,
 	return nil, nil
 }
 
-func exarotonGetServersList() (response []ExarotonServer, err error) {
-	respJson, err := exarotonRequestV1("GET", fmt.Sprintf("/servers/"), &bytes.Buffer{})
+func exarotonGetServersList(cache *sqlite3.Storage) (response []ExarotonServer, err error) {
+	var respJson []byte
+	var resp ExarotonBody
+	var servers []ExarotonServer
+
+	// Get exaroton JSON servers list from cache
+	respJson, err = cache.Get("exaroton-servers-list-json")
 	if err != nil {
+		log.Error(err)
 		return nil, err
 	}
-	var resp ExarotonBody
+	// If cache is empty, get the JSON list and save it
+	if respJson == nil {
+		log.Debug("exaroton-servers-list-json cache is empty.")
+		respJson, err = exarotonRequestV1("GET", fmt.Sprintf("/servers/"), &bytes.Buffer{})
+		if err != nil {
+			log.Error(err)
+			return nil, err
+		}
+		cache.Set("exaroton-servers-list-json", respJson, 15*time.Minute)
+		log.Debug("exaroton-servers-list-json cache saved.")
+	}
 	err = json.Unmarshal(respJson, &resp)
 	if err != nil {
-		log.Debug(err)
+		log.Error(err)
 		return nil, err
 	}
 
-	var servers []ExarotonServer
 	err = json.Unmarshal(resp.Data, &servers)
 	if err != nil {
-		log.Debug(err)
+		log.Error(err)
 		return nil, err
 	}
 	// Extract only IDs we want
@@ -124,7 +141,6 @@ func exarotonGetServersList() (response []ExarotonServer, err error) {
 		for _, targetID := range serverIDs {
 			if server.Id == targetID {
 				filteredServers = append(filteredServers, server)
-				break // Skip further checks for this server
 			}
 		}
 	}
