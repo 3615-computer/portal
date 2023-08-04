@@ -20,6 +20,7 @@ import (
 const (
 	APP_BASE_URL         = "APP_BASE_URL"
 	BIND_ADDRESS         = "BIND_ADDRESS"
+	DATABASE_CACHE_PATH  = "DATABASE_CACHE_PATH"
 	DATABASE_PATH        = "DATABASE_PATH"
 	EXAROTON_API_KEY     = "EXAROTON_API_KEY"
 	EXAROTON_SERVERS_ID  = "EXAROTON_SERVERS_ID"
@@ -33,7 +34,8 @@ func main() {
 	flag.Parse()
 	log.SetLevel(log.DebugLevel)
 
-	storage := sqlite3.New(sqlite3.Config{Database: os.Getenv(DATABASE_PATH)}) // From github.com/gofiber/storage/sqlite3
+	storage := sqlite3.New(sqlite3.Config{Database: os.Getenv(DATABASE_PATH)})     // From github.com/gofiber/storage/sqlite3
+	cache := sqlite3.New(sqlite3.Config{Database: os.Getenv(DATABASE_CACHE_PATH)}) // From github.com/gofiber/storage/sqlite3
 	engine := html.New("./views", ".html")
 	app := fiber.New(fiber.Config{
 		Views:             engine,
@@ -125,7 +127,7 @@ func main() {
 	app.Get("/minecraft", func(ctx *fiber.Ctx) error {
 		mastodonAccount := getUserMastodonFromSession(store, ctx)
 		params := fiber.Map{}
-		servers, _ := exarotonGetServersList()
+		servers, _ := exarotonGetServersList(cache)
 		if mastodonAccount.UserID != "" {
 			params["mastodonAccount"] = mastodonAccount
 			params["Title"] = "Minecraft"
@@ -141,7 +143,7 @@ func main() {
 		mastodonAccount := getUserMastodonFromSession(store, ctx)
 
 		params := fiber.Map{}
-		servers, _ := exarotonGetServersList()
+		servers, _ := exarotonGetServersList(cache)
 		if mastodonAccount.UserID != "" {
 			params["mastodonAccount"] = mastodonAccount
 			params["Title"] = "Minecraft"
