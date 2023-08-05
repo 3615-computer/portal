@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 @layer base {
-    .miniblog h1, h2, h3, h4, h5, h6 { @apply font-medium my-8; }
+    .miniblog h1,.miniblog h2,.miniblog h3,.miniblog h4,.miniblog h5,.miniblog h6 { @apply font-medium my-8; }
     .miniblog h1 { @apply text-3xl font-bold border-b-2 border-amber-500; }
     .miniblog h2 { @apply text-2xl font-semibold border-b-2 border-amber-500; }
     .miniblog h3 { @apply text-xl font-medium; }
