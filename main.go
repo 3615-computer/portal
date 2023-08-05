@@ -318,6 +318,10 @@ func main() {
 		return nil
 	})
 
+	app.Get("/miniblog/:authorNameURL/", func(ctx *fiber.Ctx) error {
+		return ctx.Redirect(fmt.Sprintf("/miniblog/%s/posts", ctx.Params("authorNameURL")))
+	})
+
 	app.Get("/miniblog/:authorNameURL/posts/", func(ctx *fiber.Ctx) error {
 		mastodonAccount := getUserMastodonFromSession(store, ctx)
 		authorNameURL := ctx.Params("authorNameURL")
