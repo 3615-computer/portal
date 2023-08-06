@@ -22,6 +22,7 @@ import (
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 
 	"github.com/gomarkdown/markdown"
 	mdHtml "github.com/gomarkdown/markdown/html"
@@ -68,10 +69,13 @@ func main() {
 	storageSessions := sqlite3.New(sqlite3.Config{Database: os.Getenv(DATABASE_PATH)})
 	cache := sqlite3.New(sqlite3.Config{Database: os.Getenv(DATABASE_CACHE_PATH)}) // From github.com/gofiber/storage/sqlite3
 	// Create blog DB
-	storageBlog, err := gorm.Open(sqlite.Open("blog.sqlite3"), &gorm.Config{})
+	storageBlog, err := gorm.Open(sqlite.Open("blog.sqlite3"), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
 	if err != nil {
 		log.Fatal("Cannot open blog.sqlite3", "err", err)
 	}
+
 	// Migrate the schema
 	storageBlog.AutoMigrate(&BlogPost{})
 
