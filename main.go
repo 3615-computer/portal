@@ -333,8 +333,12 @@ func main() {
 		var author Author
 		var blogPosts []BlogPost
 
-		storageBlog.First(&author, Author{NameURL: authorNameURL})
-		storageBlog.Order("created_at desc").Limit(20).Preload("Author").Find(&blogPosts, BlogPost{Author: author})
+		if err := storageBlog.First(&author, Author{NameURL: authorNameURL}).Error; err != nil {
+			// TODO: author not found
+			log.Error(err)
+		}
+
+		storageBlog.Order("created_at desc").Limit(20).Where("author_id = ?", author.ID).Find(&blogPosts)
 
 		params := fiber.Map{}
 
