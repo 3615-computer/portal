@@ -4,7 +4,7 @@
     "tailwindcss": "^3.3.2"
   },
   "scripts": {
-    "build:css": "npx tailwindcss -i ./assets/src/css/main.css -o ./public/css/main.css --watch",
-    "build:css:prod": "NODE_ENV=production npx tailwindcss -i ./assets/src/css/main.css -o ./public/css/main.css --minify"
+    "build:css": "npx tailwindcss -i ./app/assets/src/css/main.css -o ./app/public/css/main.css --watch",
+    "build:css:prod": "NODE_ENV=production npx tailwindcss -i ./app/assets/src/css/main.css -o ./app/public/css/main.css --minify"
   }
 }

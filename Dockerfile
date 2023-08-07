@@ -52,8 +52,8 @@ RUN --mount=type=bind,source=package.json,target=package.json \
     npm ci --omit=dev
 
 # Copy the rest of the source files into the image.
-COPY ./assets/ ./assets/
-COPY ./views/ ./views/
+COPY ./app/assets/ ./assets/
+COPY ./app/views/ ./views/
 COPY ["./package.json", "./package-lock.json", "tailwind.config.js", "./"]
 
 RUN npm run build:css:prod
@@ -100,9 +100,9 @@ VOLUME [ "/data" ]
 # Copy the executable from the "build" stage.
 COPY --chown=appuser:appuser --from=build /bin/server /opt/portal/
 # Copy the views from local directory to server directory
-COPY --chown=appuser:appuser ./views/ /opt/portal/views/
+COPY --chown=appuser:appuser ./views/ /opt/portal/app/views/
 # Copy the assets from the "build-assets" stage.
-COPY --chown=appuser:appuser --from=build-assets /usr/src/app/public/ /opt/portal/public/
+COPY --chown=appuser:appuser --from=build-assets /usr/src/app/public/ /opt/portal/app/public/
 
 # Expose the port that the application listens on.
 EXPOSE 3000
