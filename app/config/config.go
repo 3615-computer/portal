@@ -18,19 +18,6 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-const (
-	APP_BASE_URL         = "APP_BASE_URL"
-	BIND_ADDRESS         = "BIND_ADDRESS"
-	DATABASE_CACHE_PATH  = "DATABASE_CACHE_PATH"
-	DATABASE_PATH        = "DATABASE_PATH"
-	EXAROTON_API_KEY     = "EXAROTON_API_KEY"
-	EXAROTON_SERVERS_ID  = "EXAROTON_SERVERS_ID"
-	MASTODON_URL         = "MASTODON_URL"
-	OAUTH2_CLIENT_ID     = "OAUTH2_CLIENT_ID"
-	OAUTH2_CLIENT_SECRET = "OAUTH2_CLIENT_SECRET"
-	ORG_NAME             = "ORG_NAME"
-)
-
 type Config struct {
 	App     *fiber.App
 	Storage Storage
@@ -47,7 +34,7 @@ func InitConfig() {
 	log.SetLevel(log.DebugLevel)
 
 	// Create blog DB
-	storageBlog, err := gorm.Open(sqlite.Open("blog.sqlite3"), &gorm.Config{
+	storageBlog, err := gorm.Open(sqlite.Open(os.Getenv("DATABASE_PATH_BLOG")), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {
@@ -59,9 +46,9 @@ func InitConfig() {
 }
 
 func GetConfig() Config {
-	storageSessions := sqlite3.New(sqlite3.Config{Database: os.Getenv(DATABASE_PATH)})
-	cache := sqlite3.New(sqlite3.Config{Database: os.Getenv(DATABASE_CACHE_PATH)})
-	storageBlog, err := gorm.Open(sqlite.Open("blog.sqlite3"), &gorm.Config{
+	storageSessions := sqlite3.New(sqlite3.Config{Database: os.Getenv("DATABASE_PATH_SESSION")})
+	cache := sqlite3.New(sqlite3.Config{Database: os.Getenv("DATABASE_PATH_CACHE")})
+	storageBlog, err := gorm.Open(sqlite.Open(os.Getenv("DATABASE_PATH_BLOG")), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {
@@ -70,10 +57,10 @@ func GetConfig() Config {
 
 	goth.UseProviders(
 		mastodon.NewCustomisedURL(
-			os.Getenv(OAUTH2_CLIENT_ID),
-			os.Getenv(OAUTH2_CLIENT_SECRET),
-			fmt.Sprintf("%s/auth/mastodon/callback", os.Getenv(APP_BASE_URL)),
-			fmt.Sprintf("%s", os.Getenv(MASTODON_URL)),
+			os.Getenv("OAUTH2_CLIENT_ID"),
+			os.Getenv("OAUTH2_CLIENT_SECRET"),
+			fmt.Sprintf("%s/auth/mastodon/callback", os.Getenv("APP_BASE_URL")),
+			fmt.Sprintf("%s", os.Getenv("MASTODON_URL")),
 			"read:accounts",
 		),
 	)
