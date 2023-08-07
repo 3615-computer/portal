@@ -17,17 +17,6 @@ import (
 	gf "github.com/shareed2k/goth_fiber"
 )
 
-const (
-	APP_BASE_URL         = "APP_BASE_URL"
-	BIND_ADDRESS         = "BIND_ADDRESS"
-	DATABASE_CACHE_PATH  = "DATABASE_CACHE_PATH"
-	DATABASE_PATH        = "DATABASE_PATH"
-	MASTODON_URL         = "MASTODON_URL"
-	OAUTH2_CLIENT_ID     = "OAUTH2_CLIENT_ID"
-	OAUTH2_CLIENT_SECRET = "OAUTH2_CLIENT_SECRET"
-	ORG_NAME             = "ORG_NAME"
-)
-
 func main() {
 	config.InitConfig()
 	config := config.GetConfig()
@@ -46,17 +35,17 @@ func main() {
 	)
 	app.Use(func(c *fiber.Ctx) error {
 		c.Locals(
-			"ORG_NAME", os.Getenv(ORG_NAME),
+			"ORG_NAME", os.Getenv("ORG_NAME"),
 		)
 		return c.Next()
 	})
 
 	goth.UseProviders(
 		mastodon.NewCustomisedURL(
-			os.Getenv(OAUTH2_CLIENT_ID),
-			os.Getenv(OAUTH2_CLIENT_SECRET),
-			fmt.Sprintf("%s/auth/mastodon/callback", os.Getenv(APP_BASE_URL)),
-			fmt.Sprintf("%s", os.Getenv(MASTODON_URL)),
+			os.Getenv("OAUTH2_CLIENT_ID"),
+			os.Getenv("OAUTH2_CLIENT_SECRET"),
+			fmt.Sprintf("%s/auth/mastodon/callback", os.Getenv("APP_BASE_URL")),
+			fmt.Sprintf("%s", os.Getenv("MASTODON_URL")),
 			"read:accounts",
 		),
 	)
@@ -140,7 +129,7 @@ func main() {
 	miniblog.Get("/:username/posts/:post/delete", handlers.GetMiniblogByUsernamePostsPostDelete)
 	miniblog.Post("/:username/posts/:post/delete", handlers.PostMiniblogByUsernamePostsPostDelete)
 
-	if err := app.Listen(os.Getenv(BIND_ADDRESS)); err != nil {
+	if err := app.Listen(os.Getenv("BIND_ADDRESS")); err != nil {
 		log.Fatal(err)
 	}
 }

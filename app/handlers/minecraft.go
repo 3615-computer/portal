@@ -19,11 +19,6 @@ import (
 	"github.com/gofiber/storage/sqlite3"
 )
 
-const (
-	EXAROTON_API_KEY    = "EXAROTON_API_KEY"
-	EXAROTON_SERVERS_ID = "EXAROTON_SERVERS_ID"
-)
-
 type MojangAccount struct {
 	Id   string `json:"id"`
 	Name string `json:"name"`
@@ -184,7 +179,7 @@ func exarotonRequestV1(verb string, path string, bodyReq io.Reader) (response []
 	url := fmt.Sprintf("https://api.exaroton.com/v1%s", path)
 
 	// Create a Bearer string by appending string access token
-	var bearer = "Bearer " + os.Getenv(EXAROTON_API_KEY)
+	var bearer = "Bearer " + os.Getenv("EXAROTON_API_KEY")
 
 	// Create a new request using http
 	req, err := http.NewRequest(verb, url, bodyReq)
@@ -213,7 +208,7 @@ func exarotonRequestV1(verb string, path string, bodyReq io.Reader) (response []
 }
 
 func exarotonManagePlayersList(verb string, playerName string) (response []byte, err error) {
-	serversId := strings.Split(os.Getenv(EXAROTON_SERVERS_ID), ",")
+	serversId := strings.Split(os.Getenv("EXAROTON_SERVERS_ID"), ",")
 
 	body := map[string]interface{}{
 		"entries": []string{
@@ -274,7 +269,7 @@ func exarotonGetServersList(cache *sqlite3.Storage) (response []models.ExarotonS
 		return nil, err
 	}
 	// Extract only IDs we want
-	serverIDs := strings.Split(os.Getenv(EXAROTON_SERVERS_ID), ",")
+	serverIDs := strings.Split(os.Getenv("EXAROTON_SERVERS_ID"), ",")
 	filteredServers := make([]models.ExarotonServer, 0)
 	for _, server := range servers {
 		for _, targetID := range serverIDs {
