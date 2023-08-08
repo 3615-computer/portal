@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"fmt"
-	"html/template"
 	"mastodon-to-exaroton-oauth2/app/config"
 	"mastodon-to-exaroton-oauth2/app/models"
 	"net/url"
@@ -15,11 +14,6 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 
 	"gorm.io/gorm"
-
-	"github.com/gomarkdown/markdown"
-	mdHtml "github.com/gomarkdown/markdown/html"
-	"github.com/gomarkdown/markdown/parser"
-	"github.com/microcosm-cc/bluemonday"
 )
 
 func GetMiniblog(c *fiber.Ctx) error {
@@ -57,24 +51,24 @@ func GetMiniblogNew(c *fiber.Ctx) error {
 	return nil
 }
 
-func GetMiniblogByAuthorNameUrl(c *fiber.Ctx) error {
-	return c.Redirect(fmt.Sprintf("/miniblog/%s/posts", c.Params("authorNameURL")))
+func GetMiniblogByUsername(c *fiber.Ctx) error {
+	return c.Redirect(fmt.Sprintf("/miniblog/%s/posts", c.Params("username")))
 }
 
-func GetMiniblogByAuthorNameUrlPosts(c *fiber.Ctx) error {
+func GetMiniblogByUsernamePosts(c *fiber.Ctx) error {
 	config := config.GetConfig()
 	mastodonAccount := models.GetUserMastodonFromSession(config.Storage.Session, c)
-	authorNameURL := c.Params("authorNameURL")
+	username := c.Params("username")
 
 	var author models.Author
 	var blogPosts []models.BlogPost
 
-	if err := config.Storage.Blog.First(&author, models.Author{NameURL: authorNameURL}).Error; err != nil {
+	if err := config.Storage.Blog.First(&author, models.Author{NameURL: username}).Error; err != nil {
 		// TODO: author not found
 		log.Error(err)
 	}
 
-	config.Storage.Blog.Order("created_at desc").Limit(20).Where("author_id = ?", author.ID).Find(&blogPosts)
+	config.Storage.Blog.Preload("Author").Order("created_at desc").Limit(20).Where("author_id = ?", author.ID).Find(&blogPosts)
 
 	params := fiber.Map{}
 
@@ -99,7 +93,6 @@ func GetMiniblogByUsernamePostsPost(c *fiber.Ctx) error {
 	params["Title"] = fmt.Sprintf("%s – %s", blogPost.Title, blogPost.Author.Name)
 	params["Author"] = blogPost.Author
 	params["Post"] = blogPost
-	params["PostBody"] = template.HTML(string(mdToHTML([]byte(blogPost.Body))))
 	params["mastodonAccount"] = mastodonAccount
 
 	c.Render("miniblog/posts/show", params)
@@ -124,7 +117,6 @@ func GetMiniblogByUsernamePostsPostEdit(c *fiber.Ctx) error {
 	params["Title"] = fmt.Sprintf("%s – %s", blogPost.Title, blogPost.Author.Name)
 	params["Author"] = blogPost.Author
 	params["Post"] = blogPost
-	params["PostBody"] = string([]byte(blogPost.Body))
 	params["mastodonAccount"] = mastodonAccount
 
 	c.Render("miniblog/posts/update", params)
@@ -228,18 +220,4 @@ func saveBlogPost(db *gorm.DB, post models.BlogPost) error {
 
 	log.Debug("Blog post saved", "id", post.ID, "author", post.Author)
 	return nil
-}
-
-func mdToHTML(md []byte) []byte {
-	// create markdown parser with extensions
-	extensions := parser.CommonExtensions | parser.AutoHeadingIDs | parser.NoEmptyLineBeforeBlock
-	p := parser.NewWithExtensions(extensions)
-	doc := p.Parse(md)
-
-	// create HTML renderer with extensions
-	htmlFlags := mdHtml.CommonFlags | mdHtml.HrefTargetBlank
-	opts := mdHtml.RendererOptions{Flags: htmlFlags}
-	renderer := mdHtml.NewRenderer(opts)
-
-	return bluemonday.UGCPolicy().SanitizeBytes(markdown.Render(doc, renderer))
 }

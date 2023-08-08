@@ -14,7 +14,8 @@
       <div class="text-amber-500 dark:text-amber-400 font-semibold text-2xl mb-2 text-center">
         {{ .Title }}
       </div>
-      <div class="dark:text-white font-medium text-l mb-2 h-8 text-center"><span>{{ .CreatedAt }}</span></div>
+      <div class="dark:text-white font-medium text-l mb-2 h-8 text-center"><span>Published on {{ .CreatedAt.Format "Jan 02, 2006" }}</span></div>
+      <div class="block dark:text-white mb-2">{{ .ToHTML }}</div>
       </a>
     </div>
   </div>
