@@ -2,4 +2,4 @@
 /tmp/
 node_modules
 **/*.sqlite3
-./app/public/css/*.css
+app/public/css/*.css
