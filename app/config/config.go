@@ -3,7 +3,7 @@ package config
 import (
 	"flag"
 	"fmt"
-	"mastodon-to-exaroton-oauth2/app/models"
+	"mastodon-services/app/models"
 	"os"
 
 	"github.com/charmbracelet/log"

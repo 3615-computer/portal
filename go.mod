@@ -1,4 +1,4 @@
-module mastodon-to-exaroton-oauth2
+module mastodon-services
 
 go 1.20
 
