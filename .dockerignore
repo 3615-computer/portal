@@ -38,3 +38,4 @@ tmp
 **/*.sqlite3
 app/public/css/*.css
 fly.toml
+fly.*.toml
