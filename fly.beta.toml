@@ -10,7 +10,7 @@ kill_signal = "SIGINT"
 kill_timeout = 5
 
 [env]
-APP_BASE_URL = "https://beta.apps.3615.computer"
+APP_BASE_URL = "https://apps-beta.3615.computer"
 BIND_ADDRESS = "0.0.0.0:3000"
 DATABASE_PATH_SESSION = "/data/fiber_beta.sqlite3"
 DATABASE_PATH_BLOG = "/data/blog_beta.sqlite3"
