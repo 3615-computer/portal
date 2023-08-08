@@ -1,0 +1,40 @@
+# fly.toml app configuration file generated for portal-3615-computer on 2023-07-12T16:48:36+02:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = "portal-beta-3615-computer"
+primary_region = "cdg"
+
+kill_signal = "SIGINT"
+kill_timeout = 5
+
+[env]
+APP_BASE_URL = "https://beta.apps.3615.computer"
+BIND_ADDRESS = "0.0.0.0:3000"
+DATABASE_PATH_SESSION = "/data/fiber_beta.sqlite3"
+DATABASE_PATH_BLOG = "/data/blog_beta.sqlite3"
+DATABASE_PATH_CACHE = "/data/cache_beta.sqlite3"
+MASTODON_URL = "https://3615.computer/"
+ORG_NAME = "3615.computer"
+
+[mounts]
+source = "sqlite3_volume"
+destination = "/data"
+
+[[services]]
+internal_port = 3000
+protocol = "tcp"
+auto_stop_machines = true
+auto_start_machines = true
+min_machines_running = 0
+
+[[services.ports]]
+handlers = ["tls", "http"]
+port = "443"
+
+[[services.http_checks]]
+path = "/health"
+grace_period = "1s"
+interval = "15s"
+timeout = "2s"
