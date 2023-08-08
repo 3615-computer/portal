@@ -3,9 +3,9 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"mastodon-to-exaroton-oauth2/app/config"
-	"mastodon-to-exaroton-oauth2/app/handlers"
-	"mastodon-to-exaroton-oauth2/app/models"
+	"mastodon-services/app/config"
+	"mastodon-services/app/handlers"
+	"mastodon-services/app/models"
 	"os"
 
 	"github.com/charmbracelet/log"
