@@ -63,7 +63,7 @@ func GetMiniblogByUsernamePosts(c *fiber.Ctx) error {
 	var author models.Author
 	var blogPosts []models.BlogPost
 
-	if err := config.Storage.Blog.First(&author, models.Author{NameURL: username}).Error; err != nil {
+	if err := config.Storage.Blog.First(&author, models.Author{NickNameURL: username}).Error; err != nil {
 		// TODO: author not found
 		log.Error(err)
 	}
@@ -72,7 +72,7 @@ func GetMiniblogByUsernamePosts(c *fiber.Ctx) error {
 
 	params := fiber.Map{}
 
-	params["Title"] = fmt.Sprintf("%s", author.Name)
+	params["Title"] = fmt.Sprintf("%s (@%s)", author.Name, author.NickName)
 	params["Posts"] = blogPosts
 	params["mastodonAccount"] = mastodonAccount
 
@@ -90,7 +90,7 @@ func GetMiniblogByUsernamePostsPost(c *fiber.Ctx) error {
 
 	params := fiber.Map{}
 
-	params["Title"] = fmt.Sprintf("%s – %s", blogPost.Title, blogPost.Author.Name)
+	params["Title"] = fmt.Sprintf("%s – %s (@%s)", blogPost.Title, blogPost.Author.Name, blogPost.Author.NickName)
 	params["Author"] = blogPost.Author
 	params["Post"] = blogPost
 	params["mastodonAccount"] = mastodonAccount
@@ -109,12 +109,12 @@ func GetMiniblogByUsernamePostsPostEdit(c *fiber.Ctx) error {
 
 	if mastodonAccount.UserID != blogPost.AuthorID {
 		//TODO: handle error
-		return c.Redirect(fmt.Sprintf("/miniblog/%s/posts/%s", blogPost.Author.NameURL, blogPost.ID))
+		return c.Redirect(fmt.Sprintf("/miniblog/%s/posts/%s", blogPost.Author.NickNameURL, blogPost.ID))
 	}
 
 	params := fiber.Map{}
 
-	params["Title"] = fmt.Sprintf("%s – %s", blogPost.Title, blogPost.Author.Name)
+	params["Title"] = fmt.Sprintf("%s – %s (@%s)", blogPost.Title, blogPost.Author.Name, blogPost.Author.NickName)
 	params["Author"] = blogPost.Author
 	params["Post"] = blogPost
 	params["mastodonAccount"] = mastodonAccount
@@ -133,7 +133,7 @@ func PostMiniblogByUsernamePostsPostEdit(c *fiber.Ctx) error {
 
 	if mastodonAccount.UserID != blogPost.AuthorID {
 		//TODO: handle error
-		return c.Redirect(fmt.Sprintf("/miniblog/%s/posts/%s", blogPost.Author.NameURL, blogPost.ID))
+		return c.Redirect(fmt.Sprintf("/miniblog/%s/posts/%s", blogPost.Author.NickNameURL, blogPost.ID))
 	}
 
 	blogPost.Body = c.FormValue("body")
@@ -144,7 +144,7 @@ func PostMiniblogByUsernamePostsPostEdit(c *fiber.Ctx) error {
 		panic(err)
 	}
 
-	return c.Redirect(fmt.Sprintf("/miniblog/%s/posts/%s", blogPost.Author.NameURL, blogPost.ID))
+	return c.Redirect(fmt.Sprintf("/miniblog/%s/posts/%s", blogPost.Author.NickNameURL, blogPost.ID))
 }
 
 func GetMiniblogByUsernamePostsPostDelete(c *fiber.Ctx) error {
@@ -157,12 +157,12 @@ func GetMiniblogByUsernamePostsPostDelete(c *fiber.Ctx) error {
 
 	if mastodonAccount.UserID != blogPost.AuthorID {
 		//TODO: handle error
-		return c.Redirect(fmt.Sprintf("/miniblog/%s/posts/%s", blogPost.Author.NameURL, blogPost.ID))
+		return c.Redirect(fmt.Sprintf("/miniblog/%s/posts/%s", blogPost.Author.NickNameURL, blogPost.ID))
 	}
 
 	params := fiber.Map{}
 
-	params["Title"] = fmt.Sprintf("%s – %s", blogPost.Title, blogPost.Author.Name)
+	params["Title"] = fmt.Sprintf("%s – %s (@%s)", blogPost.Title, blogPost.Author.Name, blogPost.Author.NickName)
 	params["Post"] = blogPost
 
 	c.Render("miniblog/posts/delete", params)
@@ -179,7 +179,7 @@ func PostMiniblogByUsernamePostsPostDelete(c *fiber.Ctx) error {
 
 	if mastodonAccount.UserID != blogPost.AuthorID {
 		//TODO: handle error
-		return c.Redirect(fmt.Sprintf("/miniblog/%s/posts/%s", blogPost.Author.NameURL, blogPost.ID))
+		return c.Redirect(fmt.Sprintf("/miniblog/%s/posts/%s", blogPost.Author.NickNameURL, blogPost.ID))
 	}
 
 	if err := config.Storage.Blog.Delete(&blogPost).Error; err != nil {
@@ -196,9 +196,10 @@ func PostMiniblog(c *fiber.Ctx) error {
 	blogPost := models.BlogPost{
 		ID: uuid.New().String(),
 		Author: models.Author{
-			ID:      mastodonAccount.UserID,
-			Name:    mastodonAccount.Name,
-			NameURL: url.QueryEscape(strings.ToLower(mastodonAccount.Name)),
+			ID:          mastodonAccount.UserID,
+			Name:        mastodonAccount.Name,
+			NickName:    mastodonAccount.NickName,
+			NickNameURL: url.QueryEscape(strings.ToLower(mastodonAccount.NickName)),
 		},
 		Title:        c.FormValue("title"),
 		Body:         c.FormValue("body"),
@@ -210,7 +211,7 @@ func PostMiniblog(c *fiber.Ctx) error {
 		panic(err)
 	}
 
-	return c.Redirect(fmt.Sprintf("/miniblog/%s/posts/%s", blogPost.Author.NameURL, blogPost.ID))
+	return c.Redirect(fmt.Sprintf("/miniblog/%s/posts/%s", blogPost.Author.NickNameURL, blogPost.ID))
 }
 
 func saveBlogPost(db *gorm.DB, post models.BlogPost) error {
