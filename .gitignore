@@ -1,5 +1,5 @@
 .env
 /tmp/
 node_modules
-*.sqlite3
-/public/css/*.css
+**/*.sqlite3
+./app/public/css/*.css
