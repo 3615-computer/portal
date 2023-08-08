@@ -1,6 +1,9 @@
 <div class="p-8 bg-white dark:bg-slate-900 drop-shadow relative rounded-xl mb-8">
   <div class="w-full">
     <form class="" action="/miniblog/{{ .Post.Author.NameURL }}/posts/{{ .Post.ID }}/delete" method="post">
+      <div class="block md:inline grow order-3 md:order-2 dark:text-amber-400 text-center font-bold text-4xl mb-2">
+        <h1>Delete</h1>
+      </div>
       <h2 class="text-4xl dark:text-amber-400 font-bold mb-8">Are you sure?</h2>
       <p class="dark:text-white">Do you really want to delete "{{ .Post.Title }}"?</p>
       <div class="flex items-center justify-between">
