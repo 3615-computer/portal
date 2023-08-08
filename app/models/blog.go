@@ -14,9 +14,10 @@ import (
 
 type Author struct {
 	gorm.Model
-	ID      string
-	Name    string
-	NameURL string
+	ID          string
+	NickName    string
+	Name        string
+	NickNameURL string
 }
 
 type BlogPost struct {
