@@ -188,7 +188,7 @@ func exarotonRequestV1(verb string, path string, bodyReq io.Reader) (response []
 	}
 
 	// add authorization header to the req
-	req.Header.Add("models.Authorization", bearer)
+	req.Header.Add("Authorization", bearer)
 	req.Header.Add("Content-Type", "application/json")
 
 	// Send req using http Client
@@ -242,6 +242,7 @@ func exarotonGetServersList(cache *sqlite3.Storage) (response []models.ExarotonS
 
 	// Get exaroton JSON servers list from cache
 	respJson, err = cache.Get("exaroton-servers-list-json")
+	log.Debug(string(respJson))
 	if err != nil {
 		log.Error(err)
 		return nil, err
@@ -254,13 +255,23 @@ func exarotonGetServersList(cache *sqlite3.Storage) (response []models.ExarotonS
 			log.Error(err)
 			return nil, err
 		}
+		json.Unmarshal(respJson, &resp)
+		if resp.Success == false {
+			log.Error("Error during Exaroton API call", "err", resp.Error, "data", string(resp.Data))
+			return
+		}
 		cache.Set("exaroton-servers-list-json", respJson, 15*time.Minute)
 		log.Debug("exaroton-servers-list-json cache saved.")
 	}
+
 	err = json.Unmarshal(respJson, &resp)
 	if err != nil {
 		log.Error(err)
 		return nil, err
+	}
+
+	if resp.Success == false {
+		log.Error("Error during Exaroton API call", "err", resp.Error, "data", string(resp.Data))
 	}
 
 	err = json.Unmarshal(resp.Data, &servers)
