@@ -16,6 +16,6 @@
     .miniblog ol { @apply ml-4 pl-4 list-decimal; }
     .miniblog p { @apply my-4 ;}
     .miniblog p code { @apply p-1 bg-gray-200 dark:bg-slate-700 text-sm;}
-    .miniblog pre { @apply w-full p-4 bg-gray-200 dark:bg-slate-700 ;}
+    .miniblog pre { @apply w-full p-4 bg-gray-200 dark:bg-slate-700 overflow-x-scroll;}
     .miniblog blockquote { @apply ml-8 pl-4 border-l-4 border-gray-700 text-gray-700 dark:border-slate-400 dark:text-slate-400;}
 }
