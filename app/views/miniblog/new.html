@@ -1,0 +1,27 @@
+<div class="p-8 bg-white dark:bg-slate-900 drop-shadow relative rounded-xl">
+  <div class="w-full">
+    <form class="px-8 pt-6 pb-8 mb-4" action="/miniblog" method="post">
+      <div class="mb-4">
+        <label class="block text-gray-700 dark:text-amber-400 text-sm font-bold mb-2" for="title">Title</label>
+        <input
+          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          id="title"
+          name="title"
+          type="text"
+          placeholder="World, I have something to tell you." />
+      </div>
+      <div class="mb-4">
+        <label class="block text-gray-700 dark:text-amber-400 text-sm font-bold mb-2" for="body">Content (markdown compatible)</label>
+        <textarea
+          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          rows="12"
+          id="body"
+          name="body"
+          placeholder="Your awesome thought..."></textarea>
+      </div>
+      <div class="flex items-center justify-between">
+        <button class="py-2 px-3 bg-amber-500 hover:bg-amber-400 text-white dark:text-slate-900 text-sm font-semibold rounded-md shadow focus:outline-none" type="submit">Share</button>
+      </div>
+    </form>
+  </div>
+</div>

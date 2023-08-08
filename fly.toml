@@ -10,29 +10,31 @@ kill_signal = "SIGINT"
 kill_timeout = 5
 
 [env]
-  APP_BASE_URL = "https://apps.3615.computer"
-  BIND_ADDRESS = "0.0.0.0:3000"
-  DATABASE_PATH = "/data/fiber_production.sqlite3"
-  MASTODON_URL = "https://3615.computer/"
-  ORG_NAME = "3615.computer"
+APP_BASE_URL = "https://apps.3615.computer"
+BIND_ADDRESS = "0.0.0.0:3000"
+DATABASE_PATH_SESSION = "/data/fiber_production.sqlite3"
+DATABASE_PATH_BLOG = "/data/blog_production.sqlite3"
+DATABASE_PATH_CACHE = "/data/cache_production.sqlite3"
+MASTODON_URL = "https://3615.computer/"
+ORG_NAME = "3615.computer"
 
 [mounts]
-  source = "sqlite3_volume"
-  destination = "/data"
+source = "sqlite3_volume"
+destination = "/data"
 
 [[services]]
-  internal_port = 3000
-  protocol = "tcp"
-  auto_stop_machines = true
-  auto_start_machines = true
-  min_machines_running = 0
+internal_port = 3000
+protocol = "tcp"
+auto_stop_machines = true
+auto_start_machines = true
+min_machines_running = 0
 
-  [[services.ports]]
-    handlers = ["tls", "http"]
-    port = "443"
+[[services.ports]]
+handlers = ["tls", "http"]
+port = "443"
 
-  [[services.http_checks]]
-    path = "/health"
-    grace_period = "1s"
-    interval = "15s"
-    timeout = "2s"
+[[services.http_checks]]
+path = "/health"
+grace_period = "1s"
+interval = "15s"
+timeout = "2s"
