@@ -10,11 +10,9 @@
   {{ range .Posts }}
   <div class="w-full md:w-1/2 lg:w-1/3 px-4 mb-4">
     <a href="/miniblog/{{ .Author.NameURL }}/posts/{{ .ID }}">
-    <div class="bg-white dark:bg-slate-900 drop-shadow rounded-lg p-4  h-full">
-      <div class="text-amber-500 dark:text-amber-400 font-semibold text-2xl mb-2 text-center">
-        {{ .Title }}
-      </div>
-      <div class="dark:text-white font-medium text-l mb-2 h-8 text-center"><span>Published on {{ .CreatedAt.Format "Jan 02, 2006" }}</span></div>
+    <div class="bg-white dark:bg-slate-900 drop-shadow rounded-lg p-4 h-full">
+      <div class="text-amber-500 dark:text-amber-400 font-bold text-2xl mb-2 text-center">{{ .Title }}</div>
+      <div class="dark:text-white font-bold text-l mb-2 h-8 text-center"><span>Published on {{ .CreatedAt.Format "Jan 02, 2006" }}</span></div>
       <div class="block dark:text-white mb-2">{{ .PreviewHTML }}</div>
       </a>
     </div>
