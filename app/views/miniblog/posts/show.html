@@ -2,18 +2,18 @@
   <div class="w-full md:px-4">
     <div class="bg-white dark:bg-slate-900 drop-shadow rounded-none md:rounded-lg p-2 py-4 p-0 md:p-8 mb-4">
       <div class="flex flex-wrap justify-between items-center">
-        {{ if eq .mastodonAccount.UserID .Author.ID }}
+        {{ if eq .mastodonAccount.UserID .User.ID }}
         <a
           class="block md:inline grow md:grow-0 md:shrink order-1 md:order-1 text-center py-2 px-3 mx-2 bg-amber-500 hover:bg-amber-400 text-white dark:text-slate-900 text-sm font-semibold rounded-md shadow focus:outline-none"
-          href="/miniblog/{{ .Author.NickNameURL }}/posts/{{ .Post.ID }}/edit"
+          href="/miniblog/{{ .User.NickNameURL }}/posts/{{ .Post.ID }}/edit"
           >Edit</a
         >
         {{ end }}
         <div class="block md:inline grow order-3 md:order-2 dark:text-amber-400 text-center font-bold text-4xl mb-2">{{ .Post.Title }}</div>
-        {{ if eq .mastodonAccount.UserID .Author.ID }}
+        {{ if eq .mastodonAccount.UserID .User.ID }}
         <a
           class="block md:inline grow md:grow-0 md:shrink order-2 md:order-3 text-center py-2 px-3 mx-2 bg-amber-500 hover:bg-amber-400 text-white dark:text-slate-900 text-sm font-semibold rounded-md shadow focus:outline-none"
-          href="/miniblog/{{ .Author.NickNameURL }}/posts/{{ .Post.ID }}/delete"
+          href="/miniblog/{{ .User.NickNameURL }}/posts/{{ .Post.ID }}/delete"
           >Delete</a
         >
         {{ end }}

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"mastodon-services/app/config"
 	"mastodon-services/app/handlers"
@@ -10,11 +9,9 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/gofiber/template/html/v2"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/mastodon"
-	gf "github.com/shareed2k/goth_fiber"
 )
 
 func main() {
@@ -28,11 +25,6 @@ func main() {
 		ViewsLayout:       "layouts/main",
 	})
 	app.Static("/", "./app/public")
-	store := session.New(
-		session.Config{
-			Storage: config.Storage.Session.Storage,
-		},
-	)
 	app.Use(func(c *fiber.Ctx) error {
 		c.Locals(
 			"ORG_NAME", os.Getenv("ORG_NAME"),
@@ -64,53 +56,13 @@ func main() {
 		return nil
 	})
 
-	app.Get("/auth/:provider/callback", func(c *fiber.Ctx) error {
-		mastodon, err := gf.CompleteUserAuth(c, gf.CompleteUserAuthOptions{ShouldLogout: false})
-		if err != nil {
-			return err
-		}
-		c.JSON(mastodon)
-		log.Debugf("Mastodon account: %v", mastodon)
-
-		// Store User in a session
-		sess, err := store.Get(c)
-		if err != nil {
-			panic(err)
-		}
-		mastodonJson, err := json.Marshal(mastodon)
-		if err != nil {
-			panic(err)
-		}
-		sess.Set("mastodon", string(mastodonJson))
-		sess.Save()
-
-		c.Redirect("/")
-
-		return nil
-	})
-
-	app.Get("/logout/:provider", func(c *fiber.Ctx) error {
-		gf.Logout(c)
-		sess, err := store.Get(c)
-		if err != nil {
-			panic(err)
-		}
-		sess.Destroy()
-		c.Redirect("/")
-		return nil
-	})
-
-	app.Get("/auth/:provider", func(c *fiber.Ctx) error {
-		if gothicUser, err := gf.CompleteUserAuth(c, gf.CompleteUserAuthOptions{ShouldLogout: false}); err == nil {
-			c.JSON(gothicUser)
-		} else {
-			gf.BeginAuthHandler(c)
-		}
-		return nil
-	})
-
+	authentication := app.Group("/")
 	minecraft := app.Group("/minecraft")
 	miniblog := app.Group("/miniblog")
+
+	authentication.Get("/auth/:provider/callback", handlers.GetAuthProviderCallback)
+	authentication.Get("/logout/:provider", handlers.GetLogoutProvider)
+	authentication.Get("/auth/:provider", handlers.GetAuthProvider)
 
 	minecraft.Get("/", handlers.GetMinecraft)
 	minecraft.Get("/new", handlers.GetMinecraftNew)
