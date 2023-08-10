@@ -22,15 +22,19 @@ func GetMiniblog(c *fiber.Ctx) error {
 
 	var author models.Author
 	var blogPosts []models.BlogPost
+	var latestPosts []models.BlogPost
 
 	config.Storage.Blog.First(&author, models.Author{ID: mastodonAccount.UserID})
 	config.Storage.Blog.Preload("Author").Order("created_at desc").Limit(20).Where("author_id = ?", mastodonAccount.UserID).Find(&blogPosts)
+
+	config.Storage.Blog.Preload("Author").Order("created_at desc").Limit(20).Where("author_id != ?", mastodonAccount.UserID).Find(&latestPosts)
 
 	params := fiber.Map{}
 	if mastodonAccount.UserID != "" {
 		params["mastodonAccount"] = mastodonAccount
 		params["Title"] = "Miniblog"
 		params["Posts"] = blogPosts
+		params["AllPosts"] = latestPosts
 	} else {
 		c.Redirect("/")
 	}
