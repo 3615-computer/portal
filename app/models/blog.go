@@ -12,19 +12,11 @@ import (
 	"gorm.io/gorm"
 )
 
-type Author struct {
-	gorm.Model
-	ID          string
-	NickName    string
-	Name        string
-	NickNameURL string
-}
-
 type BlogPost struct {
 	gorm.Model
 	ID           string
-	AuthorID     string
-	Author       Author
+	UserID       string
+	User         User
 	Title        string
 	Body         string
 	CreationDate time.Time

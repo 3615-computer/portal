@@ -27,6 +27,7 @@ type Storage struct {
 	Cache   *sqlite3.Storage
 	Session *session.Store
 	Blog    *gorm.DB
+	User    *gorm.DB
 }
 
 func InitConfig() {
@@ -38,11 +39,19 @@ func InitConfig() {
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {
-		log.Fatal("Cannot open blog.sqlite3", "err", err)
+		log.Fatal(fmt.Sprintf("Cannot open %s", os.Getenv("DATABASE_PATH_BLOG")), "err", err)
+	}
+	// Create user DB
+	storageUser, err := gorm.Open(sqlite.Open(os.Getenv("DATABASE_PATH_USER")), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
+	if err != nil {
+		log.Fatal(fmt.Sprintf("Cannot open %s", os.Getenv("DATABASE_PATH_USER")), "err", err)
 	}
 
 	// Migrate the schema
 	storageBlog.AutoMigrate(&models.BlogPost{})
+	storageUser.AutoMigrate(&models.User{})
 }
 
 func GetConfig() Config {
@@ -52,7 +61,13 @@ func GetConfig() Config {
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {
-		log.Fatal("Cannot open blog.sqlite3", "err", err)
+		log.Fatal(fmt.Sprintf("Cannot open %s", os.Getenv("DATABASE_PATH_BLOG")), "err", err)
+	}
+	storageUser, err := gorm.Open(sqlite.Open(os.Getenv("DATABASE_PATH_USER")), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
+	if err != nil {
+		log.Fatal(fmt.Sprintf("Cannot open %s", os.Getenv("DATABASE_PATH_USER")), "err", err)
 	}
 
 	goth.UseProviders(
@@ -76,6 +91,7 @@ func GetConfig() Config {
 			Cache:   cache,
 			Session: session,
 			Blog:    storageBlog,
+			User:    storageUser,
 		},
 	}
 }
