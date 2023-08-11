@@ -1,40 +1,40 @@
 {{ if ne .MojangUsername .PreviousMojangName }}
-<div class="p-8 bg-white dark:text-white dark:bg-slate-900 drop-shadow relative rounded-xl">
-    <h2 class="text-4xl dark:text-amber-400 font-bold mb-8">Check your information</h2>
+<div class="relative rounded-xl bg-white p-8 drop-shadow dark:bg-slate-900 dark:text-white">
+  <h2 class="mb-8 text-4xl font-bold dark:text-amber-400">Check your information</h2>
 
-    <div class="flex flex-row mb-8">
-        <div class="basis-full">
-            <h3 class="text-3xl dark:text-amber-400 font-semibold">Mojang</h3>
-            <ul class="list-none">
-                <li>Your account ID: {{.MojangId}}</li>
-                <li>Your account username: {{.MojangUsername}}</li>
-                {{ if .PreviousMojangName }}
-                <h4 class="text-2xl dark:text-amber-400 font-semibold">Previous account notice</h4>
-                <p>"{{ .PreviousMojangName }}" was previously used. This username will get removed from our allowlists and your new one "{{ .MojangUsername }}" will replace it.</p>
-                {{ end }}
-            </ul>
-        </div>
+  <div class="mb-8 flex flex-row">
+    <div class="basis-full">
+      <h3 class="text-3xl font-semibold dark:text-amber-400">Mojang</h3>
+      <ul class="list-none">
+        <li>Your account ID: {{.MojangId}}</li>
+        <li>Your account username: {{.MojangUsername}}</li>
+        {{ if .PreviousMojangName }}
+        <h4 class="text-2xl font-semibold dark:text-amber-400">Previous account notice</h4>
+        <p>"{{ .PreviousMojangName }}" was previously used. This username will get removed from our allowlists and your new one "{{ .MojangUsername }}" will replace it.</p>
+        {{ end }}
+      </ul>
     </div>
-    <div class="flex flex-row mb-8">
-        <div class="basis-full">
-            <h3 class="text-3xl dark:text-amber-400 font-semibold">Mastodon</h3>
-            <ul class="list-none">
-                <li>Your account ID: {{.MastodonId}}</li>
-                <li>Your account username: {{.MastodonUsername}}</li>
-            </ul>
-        </div>
+  </div>
+  <div class="mb-8 flex flex-row">
+    <div class="basis-full">
+      <h3 class="text-3xl font-semibold dark:text-amber-400">Mastodon</h3>
+      <ul class="list-none">
+        <li>Your account ID: {{.MastodonId}}</li>
+        <li>Your account username: {{.MastodonUsername}}</li>
+      </ul>
     </div>
+  </div>
 
+  <form action="/minecraft/create" method="post">
+    <button type="submit" class="rounded-md bg-amber-500 px-3 py-2 text-sm font-semibold text-white shadow hover:bg-amber-400 focus:outline-none dark:text-slate-900">Submit</button>
+  </form>
+  {{ else }}
+  <div class="relative rounded-xl bg-white p-8 drop-shadow dark:bg-slate-900 dark:text-white">
+    <h2 class="mb-8 text-4xl font-bold dark:text-amber-400">Check your information</h2>
+    <p>"{{ .MojangUsername }}" is already registered.</p>
     <form action="/minecraft/create" method="post">
-        <button type="submit" class="py-2 px-3 bg-amber-500 hover:bg-amber-400 text-white dark:text-slate-900 text-sm font-semibold rounded-md shadow focus:outline-none">Submit</button>
+      <button type="submit" class="mt-8 rounded-md bg-amber-500 px-3 py-2 text-sm font-semibold text-white shadow hover:bg-amber-400 focus:outline-none dark:text-slate-900">Submit again</button>
     </form>
-    {{ else }}
-    <div class="p-8 bg-white dark:text-white dark:bg-slate-900 drop-shadow relative rounded-xl">
-        <h2 class="text-4xl dark:text-amber-400 font-bold mb-8">Check your information</h2>
-        <p>"{{ .MojangUsername }}" is already registered.</p>
-        <form action="/minecraft/create" method="post">
-            <button type="submit" class="py-2 px-3 mt-8 bg-amber-500 hover:bg-amber-400 text-white dark:text-slate-900 text-sm font-semibold rounded-md shadow focus:outline-none">Submit again</button>
-        </form>
-    </div>
+  </div>
 </div>
 {{ end }}
