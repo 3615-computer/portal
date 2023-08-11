@@ -24,10 +24,10 @@ func GetMiniblog(c *fiber.Ctx) error {
 	var blogPosts []models.BlogPost
 	var latestPosts []models.BlogPost
 
-	config.Storage.Blog.First(&user, models.User{ID: mastodonAccount.UserID})
-	config.Storage.Blog.Preload("User").Order("created_at desc").Limit(20).Where("user_id = ?", mastodonAccount.UserID).Find(&blogPosts)
+	config.Storage.Database.First(&user, models.User{ID: mastodonAccount.UserID})
+	config.Storage.Database.Preload("User").Order("created_at desc").Limit(20).Where("user_id = ?", mastodonAccount.UserID).Find(&blogPosts)
 
-	config.Storage.Blog.Preload("User").Order("created_at desc").Limit(20).Where("user_id != ?", mastodonAccount.UserID).Find(&latestPosts)
+	config.Storage.Database.Preload("User").Order("created_at desc").Limit(20).Where("user_id != ?", mastodonAccount.UserID).Find(&latestPosts)
 
 	params := fiber.Map{}
 	if mastodonAccount.UserID != "" {
@@ -67,12 +67,12 @@ func GetMiniblogByUsernamePosts(c *fiber.Ctx) error {
 	var user models.User
 	var blogPosts []models.BlogPost
 
-	if err := config.Storage.Blog.First(&user, models.User{NickNameURL: username}).Error; err != nil {
+	if err := config.Storage.Database.First(&user, models.User{NickNameURL: username}).Error; err != nil {
 		// TODO: user not found
 		log.Error(err)
 	}
 
-	config.Storage.Blog.Preload("User").Order("created_at desc").Limit(20).Where("user_id = ?", user.ID).Find(&blogPosts)
+	config.Storage.Database.Preload("User").Order("created_at desc").Limit(20).Where("user_id = ?", user.ID).Find(&blogPosts)
 
 	params := fiber.Map{}
 
@@ -90,7 +90,7 @@ func GetMiniblogByUsernamePostsPost(c *fiber.Ctx) error {
 	postId := c.Params("post")
 
 	var blogPost models.BlogPost
-	config.Storage.Blog.Preload("User").First(&blogPost, "id = ?", postId)
+	config.Storage.Database.Preload("User").First(&blogPost, "id = ?", postId)
 
 	params := fiber.Map{}
 
@@ -109,7 +109,7 @@ func GetMiniblogByUsernamePostsPostEdit(c *fiber.Ctx) error {
 	postId := c.Params("post")
 
 	var blogPost models.BlogPost
-	config.Storage.Blog.Preload("User").First(&blogPost, "id = ?", postId)
+	config.Storage.Database.Preload("User").First(&blogPost, "id = ?", postId)
 
 	if mastodonAccount.UserID != blogPost.UserID {
 		//TODO: handle error
@@ -133,7 +133,7 @@ func PostMiniblogByUsernamePostsPostEdit(c *fiber.Ctx) error {
 	postId := c.Params("post")
 
 	var blogPost models.BlogPost
-	config.Storage.Blog.Preload("User").First(&blogPost, "id = ?", postId)
+	config.Storage.Database.Preload("User").First(&blogPost, "id = ?", postId)
 
 	if mastodonAccount.UserID != blogPost.UserID {
 		//TODO: handle error
@@ -143,7 +143,7 @@ func PostMiniblogByUsernamePostsPostEdit(c *fiber.Ctx) error {
 	blogPost.Body = c.FormValue("body")
 	blogPost.Title = c.FormValue("title")
 
-	err := saveBlogPost(config.Storage.Blog, blogPost)
+	err := saveBlogPost(config.Storage.Database, blogPost)
 	if err != nil {
 		panic(err)
 	}
@@ -157,7 +157,7 @@ func GetMiniblogByUsernamePostsPostDelete(c *fiber.Ctx) error {
 	postId := c.Params("post")
 
 	var blogPost models.BlogPost
-	config.Storage.Blog.Preload("User").First(&blogPost, "id = ?", postId)
+	config.Storage.Database.Preload("User").First(&blogPost, "id = ?", postId)
 
 	if mastodonAccount.UserID != blogPost.UserID {
 		//TODO: handle error
@@ -179,14 +179,14 @@ func PostMiniblogByUsernamePostsPostDelete(c *fiber.Ctx) error {
 	postId := c.Params("post")
 
 	var blogPost models.BlogPost
-	config.Storage.Blog.Preload("User").First(&blogPost, "id = ?", postId)
+	config.Storage.Database.Preload("User").First(&blogPost, "id = ?", postId)
 
 	if mastodonAccount.UserID != blogPost.UserID {
 		//TODO: handle error
 		return c.Redirect(fmt.Sprintf("/miniblog/%s/posts/%s", blogPost.User.NickNameURL, blogPost.ID))
 	}
 
-	if err := config.Storage.Blog.Delete(&blogPost).Error; err != nil {
+	if err := config.Storage.Database.Delete(&blogPost).Error; err != nil {
 		log.Fatal("Error during blog post delete", "id", blogPost.ID, "user", blogPost.User, "error", err)
 	}
 
@@ -210,7 +210,7 @@ func PostMiniblog(c *fiber.Ctx) error {
 		CreationDate: time.Now(),
 	}
 
-	err := saveBlogPost(config.Storage.Blog, blogPost)
+	err := saveBlogPost(config.Storage.Database, blogPost)
 	if err != nil {
 		panic(err)
 	}
