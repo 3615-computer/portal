@@ -24,50 +24,38 @@ type Config struct {
 }
 
 type Storage struct {
-	Cache   *sqlite3.Storage
-	Session *session.Store
-	Blog    *gorm.DB
-	User    *gorm.DB
+	Cache    *sqlite3.Storage
+	Session  *session.Store
+	Database *gorm.DB
 }
 
 func InitConfig() {
 	flag.Parse()
 	log.SetLevel(log.DebugLevel)
 
-	// Create blog DB
-	storageBlog, err := gorm.Open(sqlite.Open(os.Getenv("DATABASE_PATH_BLOG")), &gorm.Config{
+	// Create main DB
+	db, err := gorm.Open(sqlite.Open(os.Getenv("DATABASE_PATH")), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {
-		log.Fatal(fmt.Sprintf("Cannot open %s", os.Getenv("DATABASE_PATH_BLOG")), "err", err)
-	}
-	// Create user DB
-	storageUser, err := gorm.Open(sqlite.Open(os.Getenv("DATABASE_PATH_USER")), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
-	})
-	if err != nil {
-		log.Fatal(fmt.Sprintf("Cannot open %s", os.Getenv("DATABASE_PATH_USER")), "err", err)
+		log.Fatal(fmt.Sprintf("Cannot open %s", os.Getenv("DATABASE_PATH")), "err", err)
 	}
 
-	// Migrate the schema
-	storageBlog.AutoMigrate(&models.BlogPost{})
-	storageUser.AutoMigrate(&models.User{})
+	// Migrate schemas
+	db.AutoMigrate(
+		&models.BlogPost{},
+		&models.User{},
+	)
 }
 
 func GetConfig() Config {
 	storageSessions := sqlite3.New(sqlite3.Config{Database: os.Getenv("DATABASE_PATH_SESSION")})
 	cache := sqlite3.New(sqlite3.Config{Database: os.Getenv("DATABASE_PATH_CACHE")})
-	storageBlog, err := gorm.Open(sqlite.Open(os.Getenv("DATABASE_PATH_BLOG")), &gorm.Config{
+	db, err := gorm.Open(sqlite.Open(os.Getenv("DATABASE_PATH")), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {
-		log.Fatal(fmt.Sprintf("Cannot open %s", os.Getenv("DATABASE_PATH_BLOG")), "err", err)
-	}
-	storageUser, err := gorm.Open(sqlite.Open(os.Getenv("DATABASE_PATH_USER")), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
-	})
-	if err != nil {
-		log.Fatal(fmt.Sprintf("Cannot open %s", os.Getenv("DATABASE_PATH_USER")), "err", err)
+		log.Fatal(fmt.Sprintf("Cannot open %s", os.Getenv("DATABASE_PATH")), "err", err)
 	}
 
 	goth.UseProviders(
@@ -88,10 +76,9 @@ func GetConfig() Config {
 
 	return Config{
 		Storage: Storage{
-			Cache:   cache,
-			Session: session,
-			Blog:    storageBlog,
-			User:    storageUser,
+			Cache:    cache,
+			Session:  session,
+			Database: db,
 		},
 	}
 }
