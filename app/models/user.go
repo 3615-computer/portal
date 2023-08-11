@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/session"
@@ -14,7 +15,7 @@ type User struct {
 	gorm.Model
 	ID          string
 	AvatarURL   string
-	Description string
+	Description template.HTML
 	FirstName   string
 	LastName    string
 	Name        string

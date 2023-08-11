@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"html/template"
 	"mastodon-services/app/config"
 	"mastodon-services/app/models"
 	"net/url"
@@ -81,7 +82,7 @@ func saveUser(mUser goth.User) error {
 	user := models.User{
 		ID:          mUser.UserID,
 		AvatarURL:   mUser.AvatarURL,
-		Description: mUser.Description,
+		Description: template.HTML(mUser.RawData["note"].(string)),
 		FirstName:   mUser.FirstName,
 		LastName:    mUser.LastName,
 		Name:        mUser.Name,
@@ -91,7 +92,7 @@ func saveUser(mUser goth.User) error {
 		UserID:      mUser.UserID,
 	}
 
-	if err := config.Storage.User.Save(&user).Error; err != nil {
+	if err := config.Storage.Database.Save(&user).Error; err != nil {
 		log.Fatal("Error while creating user", "id", mUser.UserID, "name", mUser.Name, "nickname", mUser.NickName)
 	}
 
