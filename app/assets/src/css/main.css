@@ -3,19 +3,19 @@
 @tailwind utilities;
 
 @layer base {
-    .miniblog h1,.miniblog h2,.miniblog h3,.miniblog h4,.miniblog h5,.miniblog h6 { @apply font-medium my-8; }
-    .miniblog h1 { @apply text-3xl font-bold border-b-2 border-amber-500; }
-    .miniblog h2 { @apply text-2xl font-semibold border-b-2 border-amber-500; }
-    .miniblog h3 { @apply text-xl font-medium; }
-    .miniblog h4 { @apply text-lg; }
-    .miniblog h5 { @apply text-base; }
-    .miniblog h6 { @apply text-sm; }
-    .miniblog hr { @apply my-12 border-b-4 border-amber-500; }
-    .miniblog a { @apply underline text-amber-500 dark:text-amber-400; }
-    .miniblog ul { @apply ml-4 pl-4 list-disc; }
-    .miniblog ol { @apply ml-4 pl-4 list-decimal; }
-    .miniblog p { @apply my-4 ;}
-    .miniblog p code { @apply p-1 bg-gray-200 dark:bg-slate-700 text-sm;}
-    .miniblog pre { @apply w-full p-4 bg-gray-200 dark:bg-slate-700 overflow-x-scroll;}
-    .miniblog blockquote { @apply ml-8 pl-4 border-l-4 border-gray-700 text-gray-700 dark:border-slate-400 dark:text-slate-400;}
+    .miniblog-user-content h1,.miniblog-user-content h2,.miniblog-user-content h3,.miniblog-user-content h4,.miniblog-user-content h5,.miniblog-user-content h6 { @apply font-medium my-8; }
+    .miniblog-user-content h1 { @apply text-3xl font-bold border-b-2 border-amber-500; }
+    .miniblog-user-content h2 { @apply text-2xl font-semibold border-b-2 border-amber-500; }
+    .miniblog-user-content h3 { @apply text-xl font-medium; }
+    .miniblog-user-content h4 { @apply text-lg; }
+    .miniblog-user-content h5 { @apply text-base; }
+    .miniblog-user-content h6 { @apply text-sm; }
+    .miniblog-user-content hr { @apply my-12 border-b-4 border-amber-500; }
+    .miniblog-user-content a { @apply underline text-amber-500 dark:text-amber-400; }
+    .miniblog-user-content ul { @apply ml-4 pl-4 list-disc; }
+    .miniblog-user-content ol { @apply ml-4 pl-4 list-decimal; }
+    .miniblog-user-content p { @apply my-4 ;}
+    .miniblog-user-content p code { @apply p-1 bg-gray-200 dark:bg-slate-700 text-sm;}
+    .miniblog-user-content pre { @apply w-full p-4 bg-gray-200 dark:bg-slate-700 overflow-x-scroll;}
+    .miniblog-user-content blockquote { @apply ml-8 pl-4 border-l-4 border-gray-700 text-gray-700 dark:border-slate-400 dark:text-slate-400;}
 }
