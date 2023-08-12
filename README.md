@@ -13,9 +13,9 @@ Services supported:
 | ----------------------- | --------------------------- | --------------------------------------------------------------------- |
 | `APP_BASE_URL`          | `http://apps.3615.computer` | Without a trailing slash                                              |
 | `BIND_ADDRESS`          | `0.0.0.0:3000`              | Bind application server to this IP and port                           |
-| `DATABASE_PATH_BLOG`    | `./db/blog.sqlite3`         | Path to the blog database file                                        |
 | `DATABASE_PATH_CACHE`   | `./db/cache.sqlite3`        | Path to the cache database file                                       |
 | `DATABASE_PATH_SESSION` | `./db/session.sqlite3`      | Path to the session database file                                     |
+| `DATABASE_PATH`         | `./db/db.sqlite3`           | Path to the main database file                                        |
 | `EXAROTON_API_KEY`      | `XXX`                       | Get it on https://exaroton.com/account/                               |
 | `EXAROTON_SERVERS_ID`   | `XXX` or `XXX,YYY`          | Split IDs with a comma, without the `#`                               |
 | `MASTODON_URL`          | `https://3615.computer/`    | With a trailing slash                                                 |

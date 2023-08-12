@@ -3,11 +3,27 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/markbates/goth"
+	"gorm.io/gorm"
 )
+
+type User struct {
+	gorm.Model
+	ID          string
+	AvatarURL   string
+	Description template.HTML
+	FirstName   string
+	LastName    string
+	Name        string
+	NickName    string
+	NickNameURL string
+	Provider    string
+	UserID      string
+}
 
 func GetUserMastodonFromSession(store *session.Store, ctx *fiber.Ctx) goth.User {
 	sess, err := store.Get(ctx)
