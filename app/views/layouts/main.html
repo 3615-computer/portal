@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html class="h-full bg-gray-100" lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -11,31 +11,31 @@
   <body class="min-h-screen dark:bg-slate-950">
     <nav class="bg-gray-800 dark:bg-gray-950">
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="flex lg:h-16 items-center justify-between">
+        <div class="flex items-center justify-between lg:h-16">
           <div class="flex items-center">
             <div class="hidden md:block">
               <div class="flex items-baseline space-x-4">
                 <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
-                <a href="/" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium" aria-current="page">Home</a>
-                <a href="/minecraft" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Minecraft</a>
-                <a href="/miniblog" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Miniblog</a>
+                <a href="/" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white" aria-current="page">Home</a>
+                <a href="/minecraft" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Minecraft</a>
+                <a href="/miniblog" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Miniblog</a>
               </div>
             </div>
           </div>
-          <h1 class="text-white grow md:text-2xl text-2xl md:text-center font-extrabold">
+          <h1 class="grow text-2xl font-extrabold text-white md:text-center">
             Welcome to
-            <span class="text-transparent bg-clip-text bg-gradient-to-br from-amber-400 to-yellow-500">
+            <span class="bg-gradient-to-br from-amber-400 to-yellow-500 bg-clip-text text-transparent">
               <a href="/">{{ .ORG_NAME }}</a>
             </span>
           </h1>
           <div class="sm:hidden md:block">
-            <div class="ml-4 flex space-x-4 items-center md:ml-6">
+            <div class="ml-4 flex items-center space-x-4 md:ml-6">
               {{if ne .mastodonAccount.UserID "" }}
 
               <div class="flex flex-row">
-                <a href="/" class="flex items-center text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium" aria-current="page">
+                <a href="/" class="flex items-center rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white" aria-current="page">
                   <img class="block h-8 w-8 rounded-full" src="{{ .mastodonAccount.AvatarURL }}" alt="" />
-                  <span class="px-2 basis-auto">{{ .mastodonAccount.Name }}</span>
+                  <span class="basis-auto px-2">{{ .mastodonAccount.Name }}</span>
                 </a>
               </div>
 
@@ -43,17 +43,14 @@
                 <a class="flex items-center" href="/logout/mastodon">
                   <button type="button" class="rounded-full p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                     <span class="sr-only">Logout</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
                     </svg>
                   </button>
                 </a>
               </div>
               {{else}}
-              <a href="/auth/mastodon" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium" aria-current="page">Sign in</a>
+              <a href="/auth/mastodon" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white" aria-current="page">Sign in</a>
               {{end}}
             </div>
           </div>
@@ -64,21 +61,21 @@
       <div class="md:hidden" id="mobile-menu">
         <div class="space-y-1 px-2 pb-3 pt-2 sm:px-3">
           <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
-          <a href="/" class="text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium" aria-current="page">Home</a>
-          <a href="/minecraft" class="text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium">Minecraft</a>
-          <a href="/miniblog" class="text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium">Miniblog</a>
+          <a href="/" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white" aria-current="page">Home</a>
+          <a href="/minecraft" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Minecraft</a>
+          <a href="/miniblog" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Miniblog</a>
         </div>
       </div>
     </nav>
-    <header class="bg-white dark:bg-slate-900 shadow">
+    <header class="bg-white shadow dark:bg-slate-900">
       <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <h1 class="text-3xl font-bold tracking-tight text-amber-500 dark:text-amber-400">{{ .Title }}</h1>
       </div>
     </header>
 
     <main>
-      <div class="mx-auto max-w-7xl md:py-6 sm:px-6 lg:px-8">
-        <div class="px-4 p-6 sm:px-0"> {{ embed }} </div>
+      <div class="mx-auto max-w-7xl sm:px-6 md:py-6 lg:px-8">
+        <div class="p-6 px-4 sm:px-0">{{ embed }}</div>
       </div>
     </main>
   </body>

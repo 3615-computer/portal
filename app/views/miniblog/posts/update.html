@@ -1,32 +1,19 @@
-<div class="p-8 bg-white dark:bg-slate-900 drop-shadow relative rounded-xl">
+<div class="relative rounded-xl bg-white p-8 drop-shadow dark:bg-slate-900">
   <div class="w-full">
-    <form class="" action="/miniblog/{{ .Author.NickNameURL }}/posts/{{ .Post.ID }}/edit" method="post">
-      <div class="block md:inline grow order-3 md:order-2 dark:text-amber-400 text-center font-bold text-4xl mb-2">
+    <form class="" action="/miniblog/{{ .User.NickNameURL }}/posts/{{ .Post.ID }}/edit" method="post">
+      <div class="order-3 mb-2 block grow text-center text-4xl font-bold dark:text-amber-400 md:order-2 md:inline">
         <h1>Edit</h1>
       </div>
       <div class="mb-4">
-        <label class="block text-gray-700 dark:text-amber-400 text-sm font-bold mb-2" for="title">Title</label>
-        <input
-          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          id="title"
-          name="title"
-          type="text"
-          placeholder="World, I have something to tell you."
-          value="{{ .Post.Title }}" />
+        <label class="mb-2 block text-sm font-bold text-gray-700 dark:text-amber-400" for="title">Title</label>
+        <input class="focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none" id="title" name="title" type="text" placeholder="World, I have something to tell you." value="{{ .Post.Title }}" />
       </div>
       <div class="mb-4">
-        <label class="block text-gray-700 dark:text-amber-400 text-sm font-bold mb-2" for="body">Content (markdown compatible)</label>
-        <textarea
-          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          rows="12"
-          id="body"
-          name="body"
-          placeholder="Your awesome thought...">
-{{ .Post.Body }} </textarea
-        >
+        <label class="mb-2 block text-sm font-bold text-gray-700 dark:text-amber-400" for="body">Content (markdown compatible)</label>
+        <textarea class="focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none" rows="12" id="body" name="body" placeholder="Your awesome thought...">{{ .Post.Body }} </textarea>
       </div>
       <div class="flex items-center justify-between">
-        <button class="py-2 px-3 bg-amber-500 hover:bg-amber-400 text-white dark:text-slate-900 text-sm font-semibold rounded-md shadow focus:outline-none" type="submit">Edit</button>
+        <button class="rounded-md bg-amber-500 px-3 py-2 text-sm font-semibold text-white shadow hover:bg-amber-400 focus:outline-none dark:text-slate-900" type="submit">Edit</button>
       </div>
     </form>
   </div>

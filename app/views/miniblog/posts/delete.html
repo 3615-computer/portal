@@ -1,13 +1,13 @@
-<div class="p-8 bg-white dark:bg-slate-900 drop-shadow relative rounded-xl mb-8">
+<div class="relative mb-8 rounded-xl bg-white p-8 drop-shadow dark:bg-slate-900">
   <div class="w-full">
-    <form class="" action="/miniblog/{{ .Post.Author.NickNameURL }}/posts/{{ .Post.ID }}/delete" method="post">
-      <div class="block md:inline grow order-3 md:order-2 dark:text-amber-400 text-center font-bold text-4xl mb-2">
+    <form class="" action="/miniblog/{{ .Post.User.NickNameURL }}/posts/{{ .Post.ID }}/delete" method="post">
+      <div class="order-3 mb-2 block grow text-center text-4xl font-bold dark:text-amber-400 md:order-2 md:inline">
         <h1>Delete</h1>
       </div>
-      <h2 class="text-4xl dark:text-amber-400 font-bold mb-8">Are you sure?</h2>
+      <h2 class="mb-8 text-4xl font-bold dark:text-amber-400">Are you sure?</h2>
       <p class="dark:text-white">Do you really want to delete "{{ .Post.Title }}"?</p>
       <div class="flex items-center justify-between">
-        <button class="py-2 px-3 mt-8 bg-amber-500 hover:bg-amber-400 text-white dark:text-slate-900 text-sm font-semibold rounded-md shadow focus:outline-none" type="submit">Delete</button>
+        <button class="mt-8 rounded-md bg-amber-500 px-3 py-2 text-sm font-semibold text-white shadow hover:bg-amber-400 focus:outline-none dark:text-slate-900" type="submit">Delete</button>
       </div>
     </form>
   </div>
