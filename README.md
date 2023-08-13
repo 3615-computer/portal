@@ -2,6 +2,8 @@
 
 Service deployed to [apps.3615.computer](https://apps.3615.computer/) if you want to take a look.
 
+You can deploy this for your own instances and your own users.
+
 ## Services used:
 
 - [Mastodon](https://joinmastodon.org/) (for signing in with OAuth2)
@@ -28,7 +30,7 @@ Service deployed to [apps.3615.computer](https://apps.3615.computer/) if you wan
 | `MASTODON_URL`          | `https://3615.computer/`    | With a trailing slash                                                 |
 | `OAUTH2_CLIENT_ID`      | `XXX`                       | Create your application: `mastodon.example.com/settings/applications` |
 | `OAUTH2_CLIENT_SECRET`  | `XXX`                       | Create your application: `mastodon.example.com/settings/applications` |
-| `ORG_NAME`              | `3615.computer`             | Displayed on the homepage                                             |
+| `ORG_NAME`              | `3615.computer`             | Displayed on the homepage and to name the instance in various places  |
 
 # How to run locally?
 
