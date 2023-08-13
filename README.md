@@ -1,9 +1,16 @@
 # Mastodon applications portal
 
-Services supported:
+Service deployed to [apps.3615.computer](https://apps.3615.computer/) if you want to take a look.
+
+## Services used:
 
 - [Mastodon](https://joinmastodon.org/) (for signing in with OAuth2)
 - [Exaroton](https://exaroton.com/)
+
+## Services available
+
+- **Minecraft Servers**: Let your instance users play on your Minecraft Servers using [Exaroton](https://exaroton.com/)
+- **Miniblog**: A mini blogging system for your instance users. Markdown available.
 
 # Config
 
@@ -27,13 +34,15 @@ Services supported:
 
 To run the application locally:
 
-## `docker compose`
+## Docker
 
 Just run `docker compose up`.
 
 ## Native
 
-- Application: `air`
+- Application:
+  - Install golang
+  - Use [`air`](https://github.com/cosmtrek/air) for auto-reload
 - Tailwind:
-  - First time: `npm ci`
-  - Watching changes: `npm run build:css`
+  - Install packages: `npm ci`
+  - Watch changes: `npm run build:css`
