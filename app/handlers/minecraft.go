@@ -29,13 +29,9 @@ func GetMinecraft(c *fiber.Ctx) error {
 	mastodonAccount := models.GetUserMastodonFromSession(config.Storage.Session, c)
 	params := fiber.Map{}
 	servers, _ := exarotonGetServersList(config.Storage.Cache)
-	if mastodonAccount.UserID != "" {
-		params["mastodonAccount"] = mastodonAccount
-		params["Title"] = "Minecraft"
-		params["MinecraftServers"] = servers
-	} else {
-		c.Redirect("/")
-	}
+	params["mastodonAccount"] = mastodonAccount
+	params["Title"] = "Minecraft"
+	params["MinecraftServers"] = servers
 	c.Render("minecraft/index", params)
 	return nil
 }

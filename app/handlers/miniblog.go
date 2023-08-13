@@ -30,14 +30,10 @@ func GetMiniblog(c *fiber.Ctx) error {
 	config.Storage.Database.Preload("User").Order("created_at desc").Limit(20).Where("user_id != ?", mastodonAccount.UserID).Find(&latestPosts)
 
 	params := fiber.Map{}
-	if mastodonAccount.UserID != "" {
-		params["mastodonAccount"] = mastodonAccount
-		params["Title"] = "Miniblog"
-		params["Posts"] = blogPosts
-		params["AllPosts"] = latestPosts
-	} else {
-		c.Redirect("/")
-	}
+	params["mastodonAccount"] = mastodonAccount
+	params["Title"] = "Miniblog"
+	params["Posts"] = blogPosts
+	params["LatestPosts"] = latestPosts
 	c.Render("miniblog/index", params)
 	return nil
 }
