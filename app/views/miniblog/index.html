@@ -1,4 +1,13 @@
-{{if ne .mastodonAccount.UserID "" }}
+{{if eq .mastodonAccount.UserID "" }}
+<div class="relative rounded-xl bg-amber-400 p-8 drop-shadow dark:bg-amber-500">
+  <div>
+    <p class="text-gray-800">
+      <span class="font-semibold text-white"><a href="/auth/mastodon">Login or signup on {{ .ORG_NAME }}</a></span>
+      to write a blog post!
+    </p>
+  </div>
+</div>
+{{ else }}
 <div class="relative mb-8 rounded-xl bg-white p-8 drop-shadow dark:bg-slate-900">
   <div>
     <p class="dark:text-white">
@@ -7,8 +16,7 @@
     </p>
   </div>
 </div>
-
-{{ if .Posts }}
+{{end}} {{if ne .mastodonAccount.UserID "" }} {{ if .Posts }}
 <h1 class="text-2xl font-extrabold text-amber-500 dark:text-amber-400 md:text-center">Your posts</h1>
 <div class="-mx-4 mt-8 flex flex-wrap">
   {{ range .Posts }}
@@ -25,10 +33,10 @@
   </div>
   {{ end }}
 </div>
-{{end}} {{end}} {{ if .AllPosts }}
-<h1 class="mt-6 text-2xl font-extrabold text-amber-500 dark:text-amber-400 md:text-center">Latest posts</h1>
+{{end}} {{end}} {{ if .LatestPosts }}
+<h1 class="mt-6 text-2xl font-extrabold text-amber-500 dark:text-amber-400 md:text-center">Latest public posts</h1>
 <div class="-mx-4 mt-8 flex flex-wrap">
-  {{ range .AllPosts }}
+  {{ range .LatestPosts }}
   <div class="mb-4 w-full px-4 md:w-1/2 lg:w-1/3">
     <a href="/miniblog/{{ .User.NickNameURL }}/posts/{{ .ID }}">
       <div class="h-full rounded-lg bg-white p-4 drop-shadow dark:bg-slate-900">

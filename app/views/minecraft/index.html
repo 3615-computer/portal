@@ -1,4 +1,13 @@
-{{if ne .mastodonAccount.UserID "" }}
+{{if eq .mastodonAccount.UserID "" }}
+<div class="relative rounded-xl bg-amber-400 p-8 drop-shadow dark:bg-amber-500">
+  <div>
+    <p class="text-gray-800">
+      <span class="font-semibold text-white"><a href="/auth/mastodon">Login or signup on {{ .ORG_NAME }}</a></span>
+      to get access to our Minecraft Servers!
+    </p>
+  </div>
+</div>
+{{ else }}
 <div class="relative rounded-xl bg-white p-8 drop-shadow dark:bg-slate-900">
   <div>
     <p class="dark:text-white">
@@ -7,6 +16,7 @@
     </p>
   </div>
 </div>
+{{end}}
 
 <div class="-mx-4 mt-12 flex flex-wrap">
   {{ range .MinecraftServers }}
@@ -36,4 +46,3 @@
   </div>
   {{ end }}
 </div>
-{{end}}
