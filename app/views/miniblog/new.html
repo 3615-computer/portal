@@ -1,4 +1,4 @@
-<div class="relative rounded-xl bg-white p-8 drop-shadow dark:bg-slate-900">
+<div class="relative -mx-4 bg-white drop-shadow dark:bg-slate-900 md:rounded-xl md:p-8">
   <div class="w-full">
     <form class="mb-4 px-8 pb-8 pt-6" action="/miniblog" method="post">
       <div class="mb-4">
@@ -9,17 +9,19 @@
         <label class="mb-2 block text-sm font-bold text-gray-700 dark:text-amber-400" for="body">Content (markdown compatible)</label>
         <textarea class="focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none" rows="12" id="body" name="body" placeholder="Your awesome thought..."></textarea>
       </div>
-      <div class="mb-4">
-        <label class="mb-2 block text-sm font-bold text-gray-700 dark:text-amber-400" for="visibility">Visibility</label>
-        <select name="visibility" id="visibility">
-          {{ range .visibilityOptions }}
-          <option value="{{ .ID }}">{{ .Name }}</option>
-          {{ end }}
-        </select>
-      </div>
-      <div class="mb-4">
-        <label class="mb-2 block text-sm font-bold text-gray-700 dark:text-amber-400" for="publish_status">Publish on Mastodon?</label>
-        <input type="checkbox" id="publish_status" name="publish_status" checked />
+      <div class="flex">
+        <div class="mb-4 w-1/2">
+          <label class="mb-2 block text-sm font-bold text-gray-700 dark:text-amber-400" for="visibility">Visibility</label>
+          <select name="visibility" id="visibility">
+            {{ range .visibilityOptions }}
+            <option value="{{ .ID }}">{{ .Name }}</option>
+            {{ end }}
+          </select>
+        </div>
+        <div class="mb-4 w-1/2">
+          <label class="mb-2 block text-sm font-bold text-gray-700 dark:text-amber-400" for="publish_status">Publish on Mastodon?</label>
+          <input type="checkbox" id="publish_status" name="publish_status" checked />
+        </div>
       </div>
       <div class="flex items-center justify-between">
         <button class="rounded-md bg-amber-500 px-3 py-2 text-sm font-semibold text-white shadow hover:bg-amber-400 focus:outline-none dark:text-slate-900" type="submit">Share</button>
