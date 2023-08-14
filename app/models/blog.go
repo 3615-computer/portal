@@ -44,6 +44,10 @@ func (bpv BlogPostVisibility) String() string {
 	return []string{"Public", "Unlisted", "Private", "Direct", "Limited"}[bpv]
 }
 
+func (bpv BlogPostVisibility) ID() int {
+	return int(bpv)
+}
+
 func BlogPostVisibilityOptions() []BlogPostVisibilityOption {
 	return []BlogPostVisibilityOption{
 		{ID: int(BlogPostVisibilityPublic), Name: BlogPostVisibilityPublic.String()},

@@ -17,7 +17,7 @@
           <label class="mb-2 block text-sm font-bold text-gray-700 dark:text-amber-400" for="visibility">Visibility</label>
           <select name="visibility" id="visibility">
             {{ range .visibilityOptions }}
-            <option value="{{ .ID }}">{{ .Name }}</option>
+            <option value="{{ .ID }}" {{ if eq $.Post.Visibility.ID .ID }} selected {{ end }}>{{ .Name }}</option>
             {{ end }}
           </select>
         </div>
