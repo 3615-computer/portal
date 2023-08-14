@@ -54,6 +54,10 @@ func GetMiniblogNew(c *fiber.Ctx) error {
 	config := config.GetConfig()
 	mastodonAccount := models.GetUserMastodonFromSession(config.Storage.Session, c)
 
+	if mastodonAccount.UserID == "" {
+		return c.Redirect("/miniblog/")
+	}
+
 	params := fiber.Map{}
 	params["mastodonAccount"] = mastodonAccount
 	params["visibilityOptions"] = models.BlogPostVisibilityOptions()
