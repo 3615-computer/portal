@@ -137,6 +137,7 @@ func GetMiniblogByUsernamePostsPostEdit(c *fiber.Ctx) error {
 	params["User"] = blogPost.User
 	params["Post"] = blogPost
 	params["mastodonAccount"] = mastodonAccount
+	params["visibilityOptions"] = models.BlogPostVisibilityOptions()
 
 	c.Render("miniblog/posts/update", params)
 	return nil
@@ -146,6 +147,10 @@ func PostMiniblogByUsernamePostsPostEdit(c *fiber.Ctx) error {
 	config := config.GetConfig()
 	mastodonAccount := models.GetUserMastodonFromSession(config.Storage.Session, c)
 	postId := c.Params("post")
+	visibility, err := strconv.Atoi(c.FormValue("visibility"))
+	if err != nil {
+		log.Fatal("Could not parse visibility value", "visibility", visibility, "err", err)
+	}
 
 	var blogPost models.BlogPost
 	config.Storage.Database.Preload("User").First(&blogPost, "id = ?", postId)
@@ -157,8 +162,9 @@ func PostMiniblogByUsernamePostsPostEdit(c *fiber.Ctx) error {
 
 	blogPost.Body = c.FormValue("body")
 	blogPost.Title = c.FormValue("title")
+	blogPost.Visibility = models.BlogPostVisibility(visibility)
 
-	err := saveBlogPost(config.Storage.Database, blogPost)
+	err = saveBlogPost(config.Storage.Database, blogPost)
 	if err != nil {
 		panic(err)
 	}
