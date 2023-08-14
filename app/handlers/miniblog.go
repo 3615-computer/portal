@@ -5,6 +5,7 @@ import (
 	"mastodon-services/app/config"
 	"mastodon-services/app/models"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
@@ -25,9 +26,20 @@ func GetMiniblog(c *fiber.Ctx) error {
 	var latestPosts []models.BlogPost
 
 	config.Storage.Database.First(&user, models.User{ID: mastodonAccount.UserID})
-	config.Storage.Database.Preload("User").Order("created_at desc").Limit(20).Where("user_id = ?", mastodonAccount.UserID).Find(&blogPosts)
+	config.Storage.Database.
+		Preload("User").
+		Order("created_at desc").
+		Limit(20).
+		Where("user_id = ?", mastodonAccount.UserID).
+		Find(&blogPosts)
 
-	config.Storage.Database.Preload("User").Order("created_at desc").Limit(20).Where("user_id != ?", mastodonAccount.UserID).Find(&latestPosts)
+	config.Storage.Database.
+		Preload("User").
+		Order("created_at desc").
+		Limit(20).
+		Where("user_id != ?", mastodonAccount.UserID).
+		Where("visibility == ?", models.BlogPostVisibilityPublic).
+		Find(&latestPosts)
 
 	params := fiber.Map{}
 	params["mastodonAccount"] = mastodonAccount
@@ -43,10 +55,9 @@ func GetMiniblogNew(c *fiber.Ctx) error {
 	mastodonAccount := models.GetUserMastodonFromSession(config.Storage.Session, c)
 
 	params := fiber.Map{}
-	if mastodonAccount.UserID != "" {
-		params["mastodonAccount"] = mastodonAccount
-		params["Title"] = "Miniblog"
-	}
+	params["mastodonAccount"] = mastodonAccount
+	params["visibilityOptions"] = models.BlogPostVisibilityOptions()
+	params["Title"] = "Miniblog"
 	c.Render("miniblog/new", params)
 	return nil
 }
@@ -193,6 +204,11 @@ func PostMiniblog(c *fiber.Ctx) error {
 	config := config.GetConfig()
 	mastodonAccount := models.GetUserMastodonFromSession(config.Storage.Session, c)
 
+	visibility, err := strconv.Atoi(c.FormValue("visibility"))
+	if err != nil {
+		log.Fatal("Could not parse visibility value", "visibility", visibility, "err", err)
+	}
+
 	blogPost := models.BlogPost{
 		ID: uuid.New().String(),
 		User: models.User{
@@ -203,10 +219,11 @@ func PostMiniblog(c *fiber.Ctx) error {
 		},
 		Title:        c.FormValue("title"),
 		Body:         c.FormValue("body"),
+		Visibility:   models.BlogPostVisibility(visibility),
 		CreationDate: time.Now(),
 	}
 
-	err := saveBlogPost(config.Storage.Database, blogPost)
+	err = saveBlogPost(config.Storage.Database, blogPost)
 	if err != nil {
 		panic(err)
 	}
