@@ -46,6 +46,8 @@ func InitConfig() {
 		&models.BlogPost{},
 		&models.User{},
 	)
+	// Run migration queries
+	db.Exec("UPDATE blog_posts SET visibility = 0 WHERE visibility IS NULL")
 }
 
 func GetConfig() Config {

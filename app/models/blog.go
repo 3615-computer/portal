@@ -12,6 +12,21 @@ import (
 	"gorm.io/gorm"
 )
 
+type BlogPostVisibility int
+type BlogPostVisibilityOption struct {
+	ID   int
+	Name string
+}
+
+const (
+	// Update BlogPostVisibility.String() accordingly
+	BlogPostVisibilityPublic BlogPostVisibility = iota
+	BlogPostVisibilityUnlisted
+	BlogPostVisibilityPrivate
+	BlogPostVisibilityDirect
+	BlogPostVisibilityLimited
+)
+
 type BlogPost struct {
 	gorm.Model
 	ID           string
@@ -19,7 +34,20 @@ type BlogPost struct {
 	User         User
 	Title        string
 	Body         string
+	Visibility   BlogPostVisibility `gorm:"not null;default:0"`
 	CreationDate time.Time
+}
+
+func (bpv BlogPostVisibility) String() string {
+	return []string{"Public", "Unlisted", "Private", "Direct", "Limited"}[bpv]
+}
+
+func BlogPostVisibilityOptions() []BlogPostVisibilityOption {
+	return []BlogPostVisibilityOption{
+		{ID: int(BlogPostVisibilityPublic), Name: BlogPostVisibilityPublic.String()},
+		{ID: int(BlogPostVisibilityUnlisted), Name: BlogPostVisibilityUnlisted.String()},
+		{ID: int(BlogPostVisibilityPrivate), Name: BlogPostVisibilityPrivate.String()},
+	}
 }
 
 func (b BlogPost) PreviewHTML() template.HTML {
