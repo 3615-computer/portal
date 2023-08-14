@@ -265,6 +265,7 @@ func postToMastodon(mUser goth.User, post models.BlogPost) {
 		&mastodon.Toot{
 			Status:     statusTxt,
 			Visibility: strings.ToLower(post.Visibility.String()),
+			Language:   "EN",
 		},
 	)
 	if err != nil {
