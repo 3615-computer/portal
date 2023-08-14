@@ -1,7 +1,9 @@
 package models
 
 import (
+	"fmt"
 	"html/template"
+	"os"
 	"strings"
 	"time"
 
@@ -60,6 +62,10 @@ func (b BlogPost) PreviewHTML() template.HTML {
 
 func (b BlogPost) ToHTML() template.HTML {
 	return template.HTML(string(mdToHTML([]byte(b.Body))))
+}
+
+func (b BlogPost) URL() string {
+	return fmt.Sprintf("%s/miniblog/%s/posts/%s", os.Getenv("APP_BASE_URL"), b.User.NickNameURL, b.ID)
 }
 
 func truncateText(s string, max int) string {

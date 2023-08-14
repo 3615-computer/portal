@@ -1,10 +1,12 @@
 package handlers
 
 import (
+	"context"
 	"fmt"
 	"mastodon-services/app/config"
 	"mastodon-services/app/models"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -13,6 +15,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	_ "github.com/joho/godotenv/autoload"
+	"github.com/markbates/goth"
+	"github.com/mattn/go-mastodon"
 
 	"gorm.io/gorm"
 )
@@ -232,6 +236,10 @@ func PostMiniblog(c *fiber.Ctx) error {
 		panic(err)
 	}
 
+	if c.FormValue("publish_status") != "" {
+		postToMastodon(mastodonAccount, blogPost)
+	}
+
 	return c.Redirect(fmt.Sprintf("/miniblog/%s/posts/%s", blogPost.User.NickNameURL, blogPost.ID))
 }
 
@@ -242,4 +250,25 @@ func saveBlogPost(db *gorm.DB, post models.BlogPost) error {
 
 	log.Debug("Blog post saved", "id", post.ID, "user", post.User)
 	return nil
+}
+
+func postToMastodon(mUser goth.User, post models.BlogPost) {
+	c := mastodon.NewClient(&mastodon.Config{
+		Server:       os.Getenv("MASTODON_URL"),
+		ClientID:     os.Getenv("OAUTH2_CLIENT_ID"),
+		ClientSecret: os.Getenv("OAUTH2_CLIENT_SECRET"),
+	})
+	c.Config.AccessToken = mUser.AccessToken
+	statusTxt := fmt.Sprintf("📝 New post: \"%s\" – %s", post.Title, post.URL())
+	status, err := c.PostStatus(
+		context.Background(),
+		&mastodon.Toot{
+			Status:     statusTxt,
+			Visibility: strings.ToLower(post.Visibility.String()),
+		},
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Info("Status sent", "status", status)
 }
