@@ -1,6 +1,6 @@
-<div class="relative rounded-xl bg-white p-8 drop-shadow dark:bg-slate-900">
+<div class="relative -mx-4 bg-white drop-shadow dark:bg-slate-900 md:rounded-xl md:p-8">
   <div class="w-full">
-    <form class="" action="/miniblog/{{ .User.NickNameURL }}/posts/{{ .Post.ID }}/edit" method="post">
+    <form class="mb-4 px-8 pb-8 pt-6" action="/miniblog/{{ .User.NickNameURL }}/posts/{{ .Post.ID }}/edit" method="post">
       <div class="order-3 mb-2 block grow text-center text-4xl font-bold dark:text-amber-400 md:order-2 md:inline">
         <h1>Edit</h1>
       </div>
