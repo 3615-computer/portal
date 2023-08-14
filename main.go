@@ -39,6 +39,7 @@ func main() {
 			fmt.Sprintf("%s/auth/mastodon/callback", os.Getenv("APP_BASE_URL")),
 			fmt.Sprintf("%s", os.Getenv("MASTODON_URL")),
 			"read:accounts",
+			"write:statuses",
 		),
 	)
 
