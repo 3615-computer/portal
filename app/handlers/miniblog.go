@@ -1,10 +1,13 @@
 package handlers
 
 import (
+	"context"
 	"fmt"
 	"mastodon-services/app/config"
 	"mastodon-services/app/models"
 	"net/url"
+	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -12,6 +15,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	_ "github.com/joho/godotenv/autoload"
+	"github.com/markbates/goth"
+	"github.com/mattn/go-mastodon"
 
 	"gorm.io/gorm"
 )
@@ -25,9 +30,20 @@ func GetMiniblog(c *fiber.Ctx) error {
 	var latestPosts []models.BlogPost
 
 	config.Storage.Database.First(&user, models.User{ID: mastodonAccount.UserID})
-	config.Storage.Database.Preload("User").Order("created_at desc").Limit(20).Where("user_id = ?", mastodonAccount.UserID).Find(&blogPosts)
+	config.Storage.Database.
+		Preload("User").
+		Order("created_at desc").
+		Limit(20).
+		Where("user_id = ?", mastodonAccount.UserID).
+		Find(&blogPosts)
 
-	config.Storage.Database.Preload("User").Order("created_at desc").Limit(20).Where("user_id != ?", mastodonAccount.UserID).Find(&latestPosts)
+	config.Storage.Database.
+		Preload("User").
+		Order("created_at desc").
+		Limit(20).
+		Where("user_id != ?", mastodonAccount.UserID).
+		Where("visibility == ?", models.BlogPostVisibilityPublic).
+		Find(&latestPosts)
 
 	params := fiber.Map{}
 	params["mastodonAccount"] = mastodonAccount
@@ -42,11 +58,14 @@ func GetMiniblogNew(c *fiber.Ctx) error {
 	config := config.GetConfig()
 	mastodonAccount := models.GetUserMastodonFromSession(config.Storage.Session, c)
 
-	params := fiber.Map{}
-	if mastodonAccount.UserID != "" {
-		params["mastodonAccount"] = mastodonAccount
-		params["Title"] = "Miniblog"
+	if mastodonAccount.UserID == "" {
+		return c.Redirect("/miniblog/")
 	}
+
+	params := fiber.Map{}
+	params["mastodonAccount"] = mastodonAccount
+	params["visibilityOptions"] = models.BlogPostVisibilityOptions()
+	params["Title"] = "Miniblog"
 	c.Render("miniblog/new", params)
 	return nil
 }
@@ -118,6 +137,7 @@ func GetMiniblogByUsernamePostsPostEdit(c *fiber.Ctx) error {
 	params["User"] = blogPost.User
 	params["Post"] = blogPost
 	params["mastodonAccount"] = mastodonAccount
+	params["visibilityOptions"] = models.BlogPostVisibilityOptions()
 
 	c.Render("miniblog/posts/update", params)
 	return nil
@@ -127,6 +147,10 @@ func PostMiniblogByUsernamePostsPostEdit(c *fiber.Ctx) error {
 	config := config.GetConfig()
 	mastodonAccount := models.GetUserMastodonFromSession(config.Storage.Session, c)
 	postId := c.Params("post")
+	visibility, err := strconv.Atoi(c.FormValue("visibility"))
+	if err != nil {
+		log.Fatal("Could not parse visibility value", "visibility", visibility, "err", err)
+	}
 
 	var blogPost models.BlogPost
 	config.Storage.Database.Preload("User").First(&blogPost, "id = ?", postId)
@@ -138,8 +162,9 @@ func PostMiniblogByUsernamePostsPostEdit(c *fiber.Ctx) error {
 
 	blogPost.Body = c.FormValue("body")
 	blogPost.Title = c.FormValue("title")
+	blogPost.Visibility = models.BlogPostVisibility(visibility)
 
-	err := saveBlogPost(config.Storage.Database, blogPost)
+	err = saveBlogPost(config.Storage.Database, blogPost)
 	if err != nil {
 		panic(err)
 	}
@@ -193,6 +218,11 @@ func PostMiniblog(c *fiber.Ctx) error {
 	config := config.GetConfig()
 	mastodonAccount := models.GetUserMastodonFromSession(config.Storage.Session, c)
 
+	visibility, err := strconv.Atoi(c.FormValue("visibility"))
+	if err != nil {
+		log.Fatal("Could not parse visibility value", "visibility", visibility, "err", err)
+	}
+
 	blogPost := models.BlogPost{
 		ID: uuid.New().String(),
 		User: models.User{
@@ -203,12 +233,17 @@ func PostMiniblog(c *fiber.Ctx) error {
 		},
 		Title:        c.FormValue("title"),
 		Body:         c.FormValue("body"),
+		Visibility:   models.BlogPostVisibility(visibility),
 		CreationDate: time.Now(),
 	}
 
-	err := saveBlogPost(config.Storage.Database, blogPost)
+	err = saveBlogPost(config.Storage.Database, blogPost)
 	if err != nil {
 		panic(err)
+	}
+
+	if c.FormValue("publish_status") != "" {
+		postToMastodon(mastodonAccount, blogPost)
 	}
 
 	return c.Redirect(fmt.Sprintf("/miniblog/%s/posts/%s", blogPost.User.NickNameURL, blogPost.ID))
@@ -221,4 +256,26 @@ func saveBlogPost(db *gorm.DB, post models.BlogPost) error {
 
 	log.Debug("Blog post saved", "id", post.ID, "user", post.User)
 	return nil
+}
+
+func postToMastodon(mUser goth.User, post models.BlogPost) {
+	c := mastodon.NewClient(&mastodon.Config{
+		Server:       os.Getenv("MASTODON_URL"),
+		ClientID:     os.Getenv("OAUTH2_CLIENT_ID"),
+		ClientSecret: os.Getenv("OAUTH2_CLIENT_SECRET"),
+	})
+	c.Config.AccessToken = mUser.AccessToken
+	statusTxt := fmt.Sprintf("📝 New post: \"%s\" – %s", post.Title, post.URL())
+	status, err := c.PostStatus(
+		context.Background(),
+		&mastodon.Toot{
+			Status:     statusTxt,
+			Visibility: strings.ToLower(post.Visibility.String()),
+			Language:   "EN",
+		},
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Info("Status sent", "status", status)
 }
