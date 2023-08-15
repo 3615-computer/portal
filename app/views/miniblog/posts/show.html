@@ -23,12 +23,16 @@
         {{ end }}
         <div class="my-4 flex w-full flex-col">
           <span class="text-md font-medium text-slate-500 dark:text-slate-400">
-            <strong class="font-bold text-slate-900 dark:text-slate-200">Published on: </strong>
+            <strong class="font-bold text-slate-900 dark:text-slate-200">Published on:</strong>
             {{ .Post.CreatedAt.Format "Jan 02, 2006" }}
           </span>
           <span class="text-md font-medium text-slate-500 dark:text-slate-400">
-            <strong class="font-bold text-slate-900 dark:text-slate-200">Updated on: </strong>
+            <strong class="font-bold text-slate-900 dark:text-slate-200">Updated on:</strong>
             {{ .Post.UpdatedAt.Format "Jan 02, 2006" }}
+          </span>
+          <span class="text-md font-medium text-slate-500 dark:text-slate-400">
+            <strong class="font-bold text-slate-900 dark:text-slate-200">Visibility:</strong>
+            {{ .Post.Visibility.String }}
           </span>
         </div>
       </div>

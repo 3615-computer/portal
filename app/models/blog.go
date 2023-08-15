@@ -1,7 +1,9 @@
 package models
 
 import (
+	"fmt"
 	"html/template"
+	"os"
 	"strings"
 	"time"
 
@@ -12,6 +14,21 @@ import (
 	"gorm.io/gorm"
 )
 
+type BlogPostVisibility int
+type BlogPostVisibilityOption struct {
+	ID   int
+	Name string
+}
+
+const (
+	// Update BlogPostVisibility.String() accordingly
+	BlogPostVisibilityPublic BlogPostVisibility = iota
+	BlogPostVisibilityUnlisted
+	BlogPostVisibilityPrivate
+	BlogPostVisibilityDirect
+	BlogPostVisibilityLimited
+)
+
 type BlogPost struct {
 	gorm.Model
 	ID           string
@@ -19,7 +36,24 @@ type BlogPost struct {
 	User         User
 	Title        string
 	Body         string
+	Visibility   BlogPostVisibility `gorm:"not null;default:0"`
 	CreationDate time.Time
+}
+
+func (bpv BlogPostVisibility) String() string {
+	return []string{"Public", "Unlisted", "Private", "Direct", "Limited"}[bpv]
+}
+
+func (bpv BlogPostVisibility) ID() int {
+	return int(bpv)
+}
+
+func BlogPostVisibilityOptions() []BlogPostVisibilityOption {
+	return []BlogPostVisibilityOption{
+		{ID: int(BlogPostVisibilityPublic), Name: BlogPostVisibilityPublic.String()},
+		{ID: int(BlogPostVisibilityUnlisted), Name: BlogPostVisibilityUnlisted.String()},
+		{ID: int(BlogPostVisibilityPrivate), Name: BlogPostVisibilityPrivate.String()},
+	}
 }
 
 func (b BlogPost) PreviewHTML() template.HTML {
@@ -32,6 +66,10 @@ func (b BlogPost) PreviewHTML() template.HTML {
 
 func (b BlogPost) ToHTML() template.HTML {
 	return template.HTML(string(mdToHTML([]byte(b.Body))))
+}
+
+func (b BlogPost) URL() string {
+	return fmt.Sprintf("%s/miniblog/%s/posts/%s", os.Getenv("APP_BASE_URL"), b.User.NickNameURL, b.ID)
 }
 
 func truncateText(s string, max int) string {
