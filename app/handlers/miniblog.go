@@ -273,7 +273,13 @@ func saveBlogPost(db *gorm.DB, post models.BlogPost) error {
 	return nil
 }
 
+// Create a Mastodon post with the blogpost URL and title.
+// Only if the post is "public" or "unlisted"
 func postToMastodon(mUser goth.User, post models.BlogPost) {
+	if post.Visibility == models.BlogPostVisibilityPublic || post.Visibility == models.BlogPostVisibilityUnlisted {
+		return
+	}
+
 	c := mastodon.NewClient(&mastodon.Config{
 		Server:       os.Getenv("MASTODON_URL"),
 		ClientID:     os.Getenv("OAUTH2_CLIENT_ID"),
