@@ -276,7 +276,7 @@ func saveBlogPost(db *gorm.DB, post models.BlogPost) error {
 // Create a Mastodon post with the blogpost URL and title.
 // Only if the post is "public" or "unlisted"
 func postToMastodon(mUser goth.User, post models.BlogPost) {
-	if post.Visibility == models.BlogPostVisibilityPublic || post.Visibility == models.BlogPostVisibilityUnlisted {
+	if post.Visibility == models.BlogPostVisibilityPrivate {
 		return
 	}
 
