@@ -184,6 +184,10 @@ func PostMiniblogByUsernamePostsPostEdit(c *fiber.Ctx) error {
 		panic(err)
 	}
 
+	if c.FormValue("publish_status") != "" {
+		postToMastodon(mastodonAccount, blogPost)
+	}
+
 	return c.Redirect(fmt.Sprintf("/miniblog/%s/posts/%s", blogPost.User.NickNameURL, blogPost.ID))
 }
 
