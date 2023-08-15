@@ -87,7 +87,13 @@ func GetMiniblogByUsernamePosts(c *fiber.Ctx) error {
 		log.Error(err)
 	}
 
-	config.Storage.Database.Preload("User").Order("created_at desc").Limit(20).Where("user_id = ?", user.ID).Find(&blogPosts)
+	config.Storage.Database.
+		Preload("User").
+		Order("created_at desc").
+		Limit(20).
+		Where("user_id = ?", user.ID).
+		Where("visibility == ?", models.BlogPostVisibilityPublic).
+		Find(&blogPosts)
 
 	params := fiber.Map{}
 
