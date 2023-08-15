@@ -111,7 +111,16 @@ func GetMiniblogByUsernamePostsPost(c *fiber.Ctx) error {
 	postId := c.Params("post")
 
 	var blogPost models.BlogPost
-	config.Storage.Database.Preload("User").First(&blogPost, "id = ?", postId)
+	if err := config.Storage.Database.Preload("User").First(&blogPost, "id = ?", postId).Error; err != nil {
+		// TODO: post not found
+		log.Error("Error while getting blog post", "err", err)
+		return c.Redirect("/miniblog/")
+	}
+
+	if blogPost.Visibility == models.BlogPostVisibilityPrivate && blogPost.User.UserID != mastodonAccount.UserID {
+		// TODO: this blog post is private
+		return c.Redirect("/miniblog/")
+	}
 
 	params := fiber.Map{}
 
