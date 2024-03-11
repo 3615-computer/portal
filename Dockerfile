@@ -32,7 +32,7 @@ RUN apk add --no-cache \
 RUN --mount=type=cache,target=/go/pkg/mod/ \
     --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=bind,target=. \
-    CGO_ENABLED=0 go build -o /bin/server .
+    CGO_ENABLED=1 go build -o /bin/server .
 
 ################################################################################
 # Create a stage for building the application static assets.
