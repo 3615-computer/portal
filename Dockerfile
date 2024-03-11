@@ -6,7 +6,7 @@
 
 ################################################################################
 # Create a stage for building the application.
-ARG GO_VERSION=1.20
+ARG GO_VERSION=1.22
 FROM golang:${GO_VERSION}-alpine AS build
 WORKDIR /src
 
@@ -30,8 +30,9 @@ RUN apk add --no-cache \
 # Leverage a bind mount to the current directory to avoid having to copy the
 # source code into the container.
 RUN --mount=type=cache,target=/go/pkg/mod/ \
+    --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=bind,target=. \
-    CGO_ENABLED=1 go build -o /bin/server .
+    CGO_ENABLED=0 go build -o /bin/server .
 
 ################################################################################
 # Create a stage for building the application static assets.

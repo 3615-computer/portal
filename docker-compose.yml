@@ -19,7 +19,7 @@ services:
       - ORG_NAME=3615.computer
     env_file:
       - .env
-    command: ash -c "go install github.com/cosmtrek/air@latest && air"
+    command: ash -c "go install github.com/cosmtrek/air@v1.51 && air"
 
   assets:
     tty: true
